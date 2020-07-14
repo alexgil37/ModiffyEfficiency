@@ -35,13 +35,17 @@ def completed_popup():
     messagebox.showinfo(title="Completed", message="Finished",)
 
 def dummy1():
+    entry3 = tk.Entry(root, width=15, text=loading)
+    entry3.place(x=100, y=125)
     main1(path.get(), savePath.get())
-    print("Return Success")
+    loading.set("")
     completed_popup()
 
 def dummy2():
+    entry3 = tk.Entry(root, width=15, text=loading)
+    entry3.place(x=100, y=125)
     main2(path.get(), savePath.get())
-    print("Return Success")
+    loading.set("")
     completed_popup()
 
 root = Tk()
@@ -51,6 +55,8 @@ image = PhotoImage(file=resource_path("images.png"))
 
 path = StringVar()
 savePath = StringVar()
+loading = StringVar()
+loading.set("Processing...")
 
 label = tk.Label(root, text="Folder Path:")
 label.place(x=0, y=5)
@@ -59,8 +65,8 @@ label2.place(x=0, y=25)
 
 entry =  tk.Entry(root, width=20, text=path)
 entry.place(x=67, y=7)
-entry =  tk.Entry(root, width=20, text=savePath)
-entry.place(x=67, y=27)
+entry2 =  tk.Entry(root, width=20, text=savePath)
+entry2.place(x=67, y=27)
 
 button1 = tk.Button(root, image=image, width=20, height=20,  command=select_path)
 button1.place(x=190, y=3)
