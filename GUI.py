@@ -37,6 +37,7 @@ def completed_popup():
 def dummy1():
     entry3 = tk.Entry(root, width=15, text=loading)
     entry3.place(x=100, y=125)
+    entry3.delete(0, 'end')
     main1(path.get(), savePath.get())
     loading.set("")
     completed_popup()
@@ -44,6 +45,7 @@ def dummy1():
 def dummy2():
     entry3 = tk.Entry(root, width=15, text=loading)
     entry3.place(x=100, y=125)
+    entry3.delete(0, 'end')
     main2(path.get(), savePath.get())
     loading.set("")
     completed_popup()

@@ -24,8 +24,9 @@ def main(path, savePath):
     QCworksheet.write(0, 0, 'File Name')
     QCworksheet.write(0, 1, 'Sheet Name')
     QCworksheet.write(0, 2, 'Instrument S/N')
-    QCworksheet.write(0, 3, 'Old Efficiency')
-    QCworksheet.write(0, 4, 'New Efficiency')
+    QCworksheet.write(0, 3, 'Cal DueDate')
+    QCworksheet.write(0, 4, 'Old Efficiency')
+    QCworksheet.write(0, 5, 'New Efficiency')
 
 
 
@@ -71,6 +72,17 @@ def main(path, savePath):
 
         return snCell
 
+    def find_cal_due_date(instModelRow, instModelColumn):
+        calRow = str(int(instModelRow) + 2)
+        calCol = chr(ord(instModelColumn))
+        calCell = currentSheet[calCol + calRow]
+
+        print(calCell.value)
+        print(calRow)
+        print(calCol)
+
+        return calCell
+
 
     def find_instrument_efficiency(instModelRow, instModelColumn):
         effRow = str(int(instModelRow) + 3)
@@ -111,6 +123,7 @@ def main(path, savePath):
         instrumentsData = json.load(instruments_file)
 
     QCfileRow = 1
+    dateFormat = QCworkbook.add_format({'num_format': 'mm/dd/yyyy'})
 
     for file in files:
         theFile = openpyxl.load_workbook(file)
@@ -131,6 +144,7 @@ def main(path, savePath):
                 continue
             instSNcell = find_instrument_sn_cell(instModelRow, instModelColumn)
             instEfficiencyCell = find_instrument_efficiency(instModelRow, instModelColumn)
+            instCalDueDate = find_cal_due_date(instModelRow, instModelColumn)
             serialNumber = modify_efficiency(instSNcell, instEfficiencyCell)
 
             if serialNumber[0] is None:
@@ -140,8 +154,9 @@ def main(path, savePath):
             QCworksheet.write(QCfileRow, 0, file)
             QCworksheet.write(QCfileRow, 1, str(currentSheet))
             QCworksheet.write(QCfileRow, 2, instSNcell.value)
-            QCworksheet.write(QCfileRow, 3, instEfficiencyCell.value)
-            QCworksheet.write(QCfileRow, 4, serialNumber[1])
+            QCworksheet.write(QCfileRow, 3, instCalDueDate.value, dateFormat)
+            QCworksheet.write(QCfileRow, 4, instEfficiencyCell.value)
+            QCworksheet.write(QCfileRow, 5, serialNumber[1])
 
             QCfileRow += 1
 
