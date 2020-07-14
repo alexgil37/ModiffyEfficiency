@@ -1,6 +1,18 @@
 import openpyxl
 import json
 import os
+import xlsxwriter
+
+#create excel QC file
+QCworkbook = xlsxwriter.Workbook('QC.xlsx')
+QCworksheet = QCworkbook.add_worksheet()
+
+#create columns with headers
+QCworksheet.write(0, 0, 'File Name')
+QCworksheet.write(0, 1, 'Sheet Name')
+QCworksheet.write(0, 2, 'Instrument S/N')
+QCworksheet.write(0, 3, 'Old Efficiency')
+QCworksheet.write(0, 4, 'New Efficiency')
 
 def main(path):
     def getListOfFiles(dirName):
@@ -67,8 +79,9 @@ def main(path):
             if inst['sn'] == instSNcell.value:
                 instEfficiencyCell.value = inst['betaEfficiency']
 
-                return inst['sn']
+                return [inst['sn'], inst['betaEfficiency']]
 
+        return [None, None]
 
 
 
@@ -82,6 +95,8 @@ def main(path):
 
     with open('package.json') as instruments_file:
         instrumentsData = json.load(instruments_file)
+
+    QCfileRow = 1
 
     for file in files:
         theFile = openpyxl.load_workbook(file)
@@ -104,11 +119,21 @@ def main(path):
             instEfficiencyCell = find_instrument_efficiency(instModelRow, instModelColumn)
             serialNumber = modify_efficiency(instSNcell, instEfficiencyCell)
 
-            if serialNumber is None:
+            if serialNumber[0] is None:
                 filesWithNoMatchingSN.append(file)
                 sheetsOfFilesWithNoMatchingSN.append(currentSheet)
 
+            QCworksheet.write(QCfileRow, 0, file)
+            QCworksheet.write(QCfileRow, 1, str(currentSheet))
+            QCworksheet.write(QCfileRow, 2, instSNcell.value)
+            QCworksheet.write(QCfileRow, 3, instEfficiencyCell.value)
+            QCworksheet.write(QCfileRow, 4, serialNumber[1])
+
+            QCfileRow += 1
+
         theFile.close()
         theFile.save(file)
+
+    QCworkbook.close()
 
     print("The files with no s/n are {}, the sheet is {}".format(filesWithNoMatchingSN, sheetsOfFilesWithNoMatchingSN))
