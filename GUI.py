@@ -18,9 +18,16 @@ def select_path():
     path.set(filename)
 
 
+def default_path():
+    curr_directory = os.getcwd()
+    curr_directory = os.path.join(curr_directory, "Output")
+    savePath.set(curr_directory)
+
+
 def save_path():
     curr_directory = os.getcwd()
     filename = filedialog.askdirectory(initialdir=curr_directory, title="Select Folder")
+    savePath.set(filename)
 
 
 def completed_popup():
@@ -29,28 +36,37 @@ def completed_popup():
     button3.place(x=95, y=60)
 
 def dummy():
-    main(path.get())
+    main(path.get(), savePath.get())
     print("Return Success")
     completed_popup()
 
 root = Tk()
 root.title('Efficiency')
-root.geometry('210x200')
+root.geometry('300x200')
 image = PhotoImage(file=resource_path("images.png"))
 
 path = StringVar()
+savePath = StringVar()
 
-label = tk.Label(root, text="File Path:")
+label = tk.Label(root, text="Folder Path:")
 label.place(x=0, y=5)
+label2 = tk.Label(root, text="Save Path:")
+label2.place(x=0, y=25)
 
 entry =  tk.Entry(root, width=20, text=path)
-entry.place(x=52, y=7)
+entry.place(x=67, y=7)
+entry =  tk.Entry(root, width=20, text=savePath)
+entry.place(x=67, y=27)
 
 button1 = tk.Button(root, image=image, width=20, height=20,  command=select_path)
-button1.place(x=180, y=3)
+button1.place(x=190, y=3)
+button2 = tk.Button(root, image=image, width=20, height=20,  command=save_path)
+button2.place(x=190, y=28)
+button2 = tk.Button(root, text="Default", command=default_path)
+button2.place(x=218, y=28)
 
-button2 = tk.Button(root, text="GO",  command=dummy)
-button2.place(x=100, y=30)
+button3 = tk.Button(root, text="GO",  command=dummy)
+button3.place(x=100, y=60)
 
 
 root.mainloop()

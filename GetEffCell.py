@@ -91,8 +91,6 @@ def main(path, savePath):
     def modify_efficiency(instSNcell, instEfficiencyCell):
         for inst in instrumentsData:
             if inst['sn'] == instSNcell.value:
-                instEfficiencyCell.value = inst['betaEfficiency']
-
                 return [inst['sn'], inst['betaEfficiency']]
 
         return [None, None]
