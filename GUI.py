@@ -1,8 +1,9 @@
-import ModifyEffCell
 from ModifyEffCell import main
 import os
 import tkinter as tk
+from tkinter import ttk
 from tkinter import filedialog
+from tkinter import messagebox
 from tkinter import *
 
 def select_path():
@@ -11,8 +12,17 @@ def select_path():
     filename = filedialog.askdirectory(initialdir=curr_directory, title="Select Folder")
     path.set(filename)
 
+
+def completed_popup():
+    popup = tk.Tk()
+    popup.wm_title("Completed")
+    messagebox.showinfo(title="Completed", message="Finished",)
+
 def dummy():
     main(path.get())
+    print("Return Success")
+    completed_popup()
+
 
 root = Tk()
 root.title('Efficiency')

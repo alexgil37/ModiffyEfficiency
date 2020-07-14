@@ -112,3 +112,5 @@ def main(path):
         theFile.save(file)
 
     print("The files with no s/n are {}, the sheet is {}".format(filesWithNoMatchingSN, sheetsOfFilesWithNoMatchingSN))
+
+    return
