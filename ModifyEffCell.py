@@ -137,3 +137,5 @@ def main(path):
     QCworkbook.close()
 
     print("The files with no s/n are {}, the sheet is {}".format(filesWithNoMatchingSN, sheetsOfFilesWithNoMatchingSN))
+
+    return
