@@ -1,4 +1,5 @@
-from ModifyEffCell import main
+from ModifyEffCell import main as main1
+from GetEffCell import main as main2
 import os
 import tkinter as tk
 from tkinter import filedialog
@@ -32,11 +33,14 @@ def save_path():
 
 def completed_popup():
     messagebox.showinfo(title="Completed", message="Finished",)
-    button3 = tk.Button(root, text="Save", command=save_path)
-    button3.place(x=95, y=60)
 
-def dummy():
-    main(path.get(), savePath.get())
+def dummy1():
+    main1(path.get(), savePath.get())
+    print("Return Success")
+    completed_popup()
+
+def dummy2():
+    main2(path.get(), savePath.get())
     print("Return Success")
     completed_popup()
 
@@ -65,8 +69,10 @@ button2.place(x=190, y=28)
 button2 = tk.Button(root, text="Default", command=default_path)
 button2.place(x=218, y=28)
 
-button3 = tk.Button(root, text="GO",  command=dummy)
-button3.place(x=100, y=60)
+button3 = tk.Button(root, text="Modify Efficiency",  command=dummy1)
+button3.place(x=30, y=65)
+button3 = tk.Button(root, text="Find Efficiency",  command=dummy2)
+button3.place(x=150, y=65)
 
 
 root.mainloop()
