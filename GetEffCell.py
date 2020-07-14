@@ -5,7 +5,6 @@ import xlsxwriter
 from distutils.dir_util import copy_tree
 
 
-
 def main(path, savePath):
     if os.path.isfile(savePath):
         os.mkdir(savePath)
@@ -72,6 +71,7 @@ def main(path, savePath):
 
         return snCell
 
+
     def find_cal_due_date(instModelRow, instModelColumn):
         calRow = str(int(instModelRow) + 2)
         calCol = chr(ord(instModelColumn))
@@ -100,11 +100,9 @@ def main(path, savePath):
         return effCell
 
 
-    def modify_efficiency(instSNcell, instEfficiencyCell):
+    def find_efficiency(instSNcell, instEfficiencyCell):
         for inst in instrumentsData:
             if inst['sn'] == instSNcell.value:
-                instEfficiencyCell.value = inst['betaEfficiency']
-
                 return [inst['sn'], inst['betaEfficiency']]
 
         return [None, None]
@@ -145,11 +143,12 @@ def main(path, savePath):
             instSNcell = find_instrument_sn_cell(instModelRow, instModelColumn)
             instEfficiencyCell = find_instrument_efficiency(instModelRow, instModelColumn)
             instCalDueDate = find_cal_due_date(instModelRow, instModelColumn)
-            serialNumber = modify_efficiency(instSNcell, instEfficiencyCell)
+            serialNumber = find_efficiency(instSNcell, instEfficiencyCell)
 
             if serialNumber[0] is None:
                 filesWithNoMatchingSN.append(file)
                 sheetsOfFilesWithNoMatchingSN.append(currentSheet)
+
 
             QCworksheet.write(QCfileRow, 0, file)
             QCworksheet.write(QCfileRow, 1, str(currentSheet))
