@@ -35,71 +35,21 @@ def save_path():
 def completed_popup():
     messagebox.showinfo(title="Completed", message="Finished",)
 
+
 def Loading():
     entry3 = tk.Entry(root, width=15, text=loading)
     entry3.place(x=100, y=125)
+
 
 def dummy1():
     main1(path.get(), savePath.get())
     completed_popup()
 
+
 def dummy2():
     main2(path.get(), savePath.get())
     completed_popup()
 
-def progressbar():
-    progressbarWindow = Tk()
-    progressbarWindow.title('Loading')
-
-
-    def bar():
-        import time
-        progress['value'] = 20
-        progressbarWindow.update_idletasks()
-        time.sleep(0.5)
-
-        progress['value'] = 40
-        progressbarWindow.update_idletasks()
-        time.sleep(0.5)
-
-        progress['value'] = 50
-        progressbarWindow.update_idletasks()
-        time.sleep(0.5)
-
-        progress['value'] = 60
-        progressbarWindow.update_idletasks()
-        time.sleep(0.5)
-
-        progress['value'] = 80
-        progressbarWindow.update_idletasks()
-        time.sleep(0.5)
-
-        progress['value'] = 100
-        progressbarWindow.update_idletasks()
-        time.sleep(0.5)
-
-        progress['value'] = 80
-        progressbarWindow.update_idletasks()
-        time.sleep(0.5)
-
-        progress['value'] = 60
-        progressbarWindow.update_idletasks()
-        time.sleep(0.5)
-
-        progress['value'] = 50
-        progressbarWindow.update_idletasks()
-        time.sleep(0.5)
-
-        progress['value'] = 40
-        progressbarWindow.update_idletasks()
-        time.sleep(0.5)
-
-        progress['value'] = 20
-        progressbarWindow.update_idletasks()
-        time.sleep(0.5)
-        progress['value'] = 0
-
-    progress.pack(pady=10)
 
 root = Tk()
 root.title('Efficiency')
@@ -128,12 +78,10 @@ button2.place(x=190, y=28)
 button2 = tk.Button(root, text="Default", command=default_path)
 button2.place(x=218, y=28)
 
-button3 = tk.Button(root, text="Modify Efficiency",  command=lambda : [progressbar(), dummy1()])
+button3 = tk.Button(root, text="Modify Efficiency",  command=lambda : [dummy1()])
 button3.place(x=30, y=65)
 button3 = tk.Button(root, text="Find Efficiency",  command=dummy2)
 button3.place(x=150, y=65)
-
-progress = Progressbar(root, orient = HORIZONTAL, length = 100, mode = 'indeterminate')
 
 root.mainloop()
 

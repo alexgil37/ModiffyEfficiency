@@ -9,12 +9,6 @@ def main(path, savePath):
     if os.path.isfile(savePath):
         os.mkdir(savePath)
 
-    # copy original files into designated filepath
-    fileSavePath = os.path.join(savePath, "Output Files")
-    if os.path.isfile(savePath):
-        os.mkdir(fileSavePath)
-    copy_tree(path, fileSavePath)
-
     # create excel QC file
     QCworkbook = xlsxwriter.Workbook(savePath + '\\' + 'QC.xlsx')
     QCworksheet = QCworkbook.add_worksheet()
@@ -115,7 +109,7 @@ def main(path, savePath):
     filesWithNoMatchingSN = list()
     sheetsOfFilesWithNoMatchingSN = list()
 
-    files = getListOfFiles(fileSavePath)
+    files = getListOfFiles(path)
 
     with open('package.json') as instruments_file:
         instrumentsData = json.load(instruments_file)
