@@ -7,6 +7,7 @@ from distutils.dir_util import copy_tree
 
 
 def main(path, savePath):
+    # Create the output folder
     if os.path.isfile(savePath):
         os.mkdir(savePath)
 
@@ -41,7 +42,7 @@ def main(path, savePath):
             else:
                 allFiles.append(fullPath)
 
-        print(allFiles)
+        # print(allFiles)
 
         return allFiles
 
@@ -89,9 +90,11 @@ def main(path, savePath):
         effCol = chr(ord(instModelColumn) + 2)
         effCell = currentSheet[effCol + effRow]
 
+        # In case it is 3 cells merged instead of 2
         if type(effCell).__name__ == 'MergedCell':
             effCol = chr(ord(instModelColumn) + 3)
             effCell = currentSheet[effCol + effRow]
+
 
         print(effCell.value)
         print(effRow)
@@ -123,6 +126,7 @@ def main(path, savePath):
         instrumentsData = json.load(instruments_file)
 
     QCfileRow = 1
+    # Create Date format to write to xlsx files
     dateFormat = QCworkbook.add_format({'num_format': 'mm/dd/yyyy'})
 
     for file in files:
@@ -132,7 +136,7 @@ def main(path, savePath):
         print("All sheet names {} ".format(theFile.sheetnames))
 
         for x in allSheetNames:
-            print("Current sheet name is {}" .format(x))
+            # print("Current sheet name is {}" .format(x))
             currentSheet = theFile[x]
             instModelRow = find_instrument_model_cell(currentSheet)[0]
             instModelColumn = find_instrument_model_cell(currentSheet)[1]
@@ -140,22 +144,27 @@ def main(path, savePath):
 
             print("The cell is {}, the row is {} and the column is {} ".format(instModelCell, instModelRow, instModelColumn))
 
+            # Check if Model Number is blank
             if instModelCell is None:
                 continue
+
             instSNcell = find_instrument_sn_cell(instModelRow, instModelColumn)
             instEfficiencyCell = find_instrument_efficiency(instModelRow, instModelColumn)
+            oldinstEfficiencyCell = instEfficiencyCell.value
             instCalDueDate = find_cal_due_date(instModelRow, instModelColumn)
             serialNumber = modify_efficiency(instSNcell, instEfficiencyCell)
 
+            # Finding all surveys that do not have a SN
             if serialNumber[0] is None:
                 filesWithNoMatchingSN.append(file)
                 sheetsOfFilesWithNoMatchingSN.append(currentSheet)
 
+            # Write the results to the QC file
             QCworksheet.write(QCfileRow, 0, file)
             QCworksheet.write(QCfileRow, 1, str(currentSheet))
             QCworksheet.write(QCfileRow, 2, instSNcell.value)
             QCworksheet.write(QCfileRow, 3, instCalDueDate.value, dateFormat)
-            QCworksheet.write(QCfileRow, 4, instEfficiencyCell.value)
+            QCworksheet.write(QCfileRow, 4, oldinstEfficiencyCell)
             QCworksheet.write(QCfileRow, 5, serialNumber[1])
 
             QCfileRow += 1
