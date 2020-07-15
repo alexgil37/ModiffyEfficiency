@@ -2,7 +2,6 @@ import openpyxl
 import json
 import os
 import xlsxwriter
-from distutils.dir_util import copy_tree
 
 
 def main(path, savePath):
@@ -136,6 +135,7 @@ def main(path, savePath):
                 continue
             instSNcell = find_instrument_sn_cell(instModelRow, instModelColumn)
             instEfficiencyCell = find_instrument_efficiency(instModelRow, instModelColumn)
+            oldinstEfficiencyCell = instEfficiencyCell.value
             instCalDueDate = find_cal_due_date(instModelRow, instModelColumn)
             serialNumber = find_efficiency(instSNcell, instEfficiencyCell)
 
@@ -148,7 +148,7 @@ def main(path, savePath):
             QCworksheet.write(QCfileRow, 1, str(currentSheet))
             QCworksheet.write(QCfileRow, 2, instSNcell.value)
             QCworksheet.write(QCfileRow, 3, instCalDueDate.value, dateFormat)
-            QCworksheet.write(QCfileRow, 4, instEfficiencyCell.value)
+            QCworksheet.write(QCfileRow, 4, oldinstEfficiencyCell)
             QCworksheet.write(QCfileRow, 5, serialNumber[1])
 
             QCfileRow += 1

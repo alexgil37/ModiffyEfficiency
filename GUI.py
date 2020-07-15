@@ -1,4 +1,6 @@
+import ModifyEffCell
 from ModifyEffCell import main as main1
+import GetEffCell
 from GetEffCell import main as main2
 import os
 import tkinter as tk
