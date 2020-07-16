@@ -1,6 +1,7 @@
 import openpyxl
 import json
 import os
+import sys
 import xlsxwriter
 from distutils.dir_util import copy_tree
 
@@ -29,6 +30,10 @@ def main(path, savePath):
     QCworksheet.write(0, 4, 'Old Efficiency')
     QCworksheet.write(0, 5, 'New Efficiency')
 
+
+    def resource_path(relative_path):
+        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.dirname(__file__)))
+        return os.path.join(base_path, relative_path)
 
 
     def getListOfFiles(dirName):
@@ -122,7 +127,7 @@ def main(path, savePath):
 
     files = getListOfFiles(fileSavePath)
 
-    with open('package.json') as instruments_file:
+    with open(file=resource_path("package.json")) as instruments_file:
         instrumentsData = json.load(instruments_file)
 
     QCfileRow = 1
