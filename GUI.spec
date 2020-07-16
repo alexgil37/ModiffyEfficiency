@@ -6,7 +6,7 @@ block_cipher = None
 a = Analysis(['GUI.py'],
              pathex=['C:\\Users\\paul.jones\\Documents\\GitHub\\ModiffyEfficiency\\ModiffyEfficiency'],
              binaries=[],
-             datas=[('package.json', '.')],
+             datas=[],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
@@ -15,8 +15,8 @@ a = Analysis(['GUI.py'],
              win_private_assemblies=False,
              cipher=block_cipher,
              noarchive=False)
-			 
-a.datas += [('images.png','C:\\Users\\paul.jones\\Documents\\GitHub\\ModiffyEfficiency\\ModiffyEfficiency\\images.png', "DATA")]
+
+a.datas += [('images.png','C:\\Users\\paul.jones\\Documents\\GitHub\\ModiffyEfficiency\\ModiffyEfficiency\\images.png', "DATA"), ('package.json','C:\\Users\\paul.jones\\Documents\\GitHub\\ModiffyEfficiency\\ModiffyEfficiency\\package.json', "DATA")]
 			 
 pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
