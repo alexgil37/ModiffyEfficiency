@@ -5,4 +5,4 @@ The values for their efficiency rating can easily be changed by modifying the va
 
 Use command
 ```pyinstaller --onefile GUI.spec```
-This will create an exe file which can then be run. To run the exe, the json file will need to be in the same directory as the executable.
+This will create an exe file which can then be run.
