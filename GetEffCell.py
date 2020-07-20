@@ -10,7 +10,7 @@ def main(path, savePath):
         os.mkdir(savePath)
 
     # create excel QC file
-    QCworkbook = xlsxwriter.Workbook(savePath + '\\' + 'QC.xlsx')
+    QCworkbook = xlsxwriter.Workbook(savePath + '\\' + 'QC-Efficiency.xlsx')
     QCworksheet = QCworkbook.add_worksheet()
 
     # create columns with headers
@@ -201,6 +201,6 @@ def main(path, savePath):
     QCworkbook.close()
 
     print("The files with no s/n are {}, the sheet is {}".format(filesWithNoMatchingSN, sheetsOfFilesWithNoMatchingSN))
-    os.startfile(savePath + '\\' + 'QC.xlsx')
+    os.startfile(savePath + '\\' + 'QC-Efficiency.xlsx')
 
     return
