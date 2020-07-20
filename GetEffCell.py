@@ -4,7 +4,6 @@ import os
 import sys
 import xlsxwriter
 
-
 def main(path, savePath):
     if os.path.isfile(savePath):
         os.mkdir(savePath)
