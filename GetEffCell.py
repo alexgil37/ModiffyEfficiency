@@ -40,8 +40,8 @@ def main(path, savePath):
 
 
     def find_instrument_model_cell(currentSheet):
-        for row in range(1, 50):
-            for column in "ABCDEFGHIJKLMNOPQRSTUV":  # Here you can add or reduce the columns
+        for row in range(1, 30):
+            for column in "GHIJKLMNOPQRSTUV":  # Here you can add or reduce the columns
                 modelCell = "{}{}".format(column, row)
                 if currentSheet[modelCell].value == instrumentModel:
                     print("the row is {0} and the column {1}" .format(row, column))
@@ -97,11 +97,10 @@ def main(path, savePath):
     Take the current sheet and returns the value of the cell to the right of the cell containing Survey No.
     """
     def find_survey_number(currentSheet):
-        for column in "ABCDEFGHIJKLMNOPQRSTUV":
-            for row in range(1, 50):
+        for column in "ABCDEFGHI":
+            for row in range(1, 20):
                 modelCell = "{}{}".format(column, row)
                 newCol = column
-                value = currentSheet[modelCell].value
 
                 while (currentSheet[modelCell].value == "Survey No") or (currentSheet[modelCell].value == "Survey Number"):
                     if newCol >= "V":
@@ -114,6 +113,8 @@ def main(path, savePath):
                         newVal = currentSheet[newCol + str(row)].value
                         test = 0
                         return newVal
+
+        return "None"
 
 
     def find_efficiency(instSNcell, instEfficiencyCell):
@@ -152,9 +153,7 @@ def main(path, savePath):
         for x in allSheetNames:
             print("Current sheet name is {}" .format(x))
             currentSheet = theFile[x]
-            instModelRow = find_instrument_model_cell(currentSheet)[0]
-            instModelColumn = find_instrument_model_cell(currentSheet)[1]
-            instModelCell = find_instrument_model_cell(currentSheet)[2]
+            instModelRow, instModelColumn, instModelCell = find_instrument_model_cell(currentSheet)
             surveyNumber = find_survey_number(currentSheet)
 
             print("The cell is {}, the row is {} and the column is {} ".format(instModelCell, instModelRow, instModelColumn))
