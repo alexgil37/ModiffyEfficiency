@@ -79,7 +79,7 @@ button2.place(x=190, y=28)
 button2 = tk.Button(root, text="Default", command=default_path)
 button2.place(x=218, y=28)
 
-button3 = tk.Button(root, text="Modify Efficiency",  command=lambda : [dummy1()])
+button3 = tk.Button(root, text="Modify Efficiency",  command=dummy1)
 button3.place(x=30, y=65)
 button3 = tk.Button(root, text="Find Efficiency",  command=dummy2)
 button3.place(x=150, y=65)
