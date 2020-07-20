@@ -1,7 +1,6 @@
-import ModifyEffCell
 from ModifyEffCell import main as main1
-import GetEffCell
 from GetEffCell import main as main2
+from FindRemovableData import main as main3
 import os
 import tkinter as tk
 from tkinter import filedialog
@@ -51,6 +50,10 @@ def dummy2():
     main2(path.get(), savePath.get())
     completed_popup()
 
+def dummy3():
+    main3(path.get(), savePath.get())
+    completed_popup()
+
 
 root = Tk()
 root.title('Efficiency')
@@ -65,24 +68,26 @@ loading.set("Processing...")
 label = tk.Label(root, text="Folder Path:")
 label.place(x=0, y=5)
 label2 = tk.Label(root, text="Save Path:")
-label2.place(x=0, y=25)
+label2.place(x=0, y=30)
 
 entry =  tk.Entry(root, width=20, text=path)
 entry.place(x=67, y=7)
 entry2 =  tk.Entry(root, width=20, text=savePath)
-entry2.place(x=67, y=27)
+entry2.place(x=67, y=32)
 
 button1 = tk.Button(root, image=image, width=20, height=20,  command=select_path)
 button1.place(x=190, y=3)
 button2 = tk.Button(root, image=image, width=20, height=20,  command=save_path)
 button2.place(x=190, y=28)
 button2 = tk.Button(root, text="Default", command=default_path)
-button2.place(x=218, y=28)
+button2.place(x=218, y=29)
 
 button3 = tk.Button(root, text="Modify Efficiency",  command=dummy1)
 button3.place(x=30, y=65)
 button3 = tk.Button(root, text="Find Efficiency",  command=dummy2)
 button3.place(x=150, y=65)
+button3 = tk.Button(root, text="Find Removable Data",  command=dummy3)
+button3.place(x=72, y=95)
 
 root.mainloop()
 
