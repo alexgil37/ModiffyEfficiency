@@ -1,6 +1,7 @@
 import openpyxl
 import json
 import os
+import sys
 import xlsxwriter
 
 
@@ -21,6 +22,10 @@ def main(path, savePath):
     QCworksheet.write(0, 5, 'Cal DueDate')
 
 
+    def resource_path(relative_path):
+        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.dirname(__file__)))
+        return os.path.join(base_path, relative_path)
+
 
     def getListOfFiles(dirName):
         listOfFile = os.listdir(dirName)
@@ -28,6 +33,7 @@ def main(path, savePath):
 
         for file in listOfFile:
             fullPath = os.path.join(dirName, file)
+
             if os.path.isdir(fullPath):
                 allFiles = allFiles + getListOfFiles(fullPath)
             else:
@@ -43,8 +49,10 @@ def main(path, savePath):
             for column in "GHIJKLMNOPQRSTUV":  # Here you can add or reduce the columns
                 modelCell = "{}{}".format(column, row)
                 modelVal = currentSheet[modelCell].value
+
                 if (modelVal == None) or isinstance(modelVal, str) == False:
                     continue
+
                 elif (modelVal[:6] == "ASC-DP") or (modelVal[:4] == "2929") or (modelVal[:4] == "3030"):
                     for row2 in range (row+11, 50):
                         if currentSheet[modelCell].value != None:

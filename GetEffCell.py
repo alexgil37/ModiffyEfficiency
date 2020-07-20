@@ -1,6 +1,7 @@
 import openpyxl
 import json
 import os
+import sys
 import xlsxwriter
 
 
@@ -21,6 +22,10 @@ def main(path, savePath):
     QCworksheet.write(0, 5, 'Old Efficiency')
     QCworksheet.write(0, 6, 'New Efficiency')
 
+
+    def resource_path(relative_path):
+        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.dirname(__file__)))
+        return os.path.join(base_path, relative_path)
 
 
     def getListOfFiles(dirName):
