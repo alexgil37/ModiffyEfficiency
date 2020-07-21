@@ -45,7 +45,7 @@ def main(path, savePath):
 
     def find_instrument_model_cell(currentSheet):
         for row in range(1, 30):
-            for column in "GHIJKLMNOPQRSTUV":  # Here you can add or reduce the columns
+            for column in "GHIJKLMNOPQRSTUVWXYZ":  # Here you can add or reduce the columns
                 modelCell = "{}{}".format(column, row)
                 if currentSheet[modelCell].value == instrumentModel:
                     print("the row is {0} and the column {1}" .format(row, column))

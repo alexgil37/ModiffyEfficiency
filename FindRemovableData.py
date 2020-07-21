@@ -43,20 +43,44 @@ def main(path, savePath):
 
         return allFiles
 
+    """This function returns the location of the indicated Beta-Gamma"""
+    def check_for_BettaGamma(num):
+        found = 0
+        for row in range(1, 30):
+            for column in "GHIJKLMNOPQRSTUVWXYZ":
+
+                modelVal = currentSheet[column +str(row)].value
+                if modelVal != "Beta-Gamma":
+                    continue
+
+                found += 1
+                if found == num:
+                    return [row, column]
+
+        return [None, None]
+
+
 
     def find_instrument_model_cell(currentSheet):
         for row in range(1, 30):
-            for column in "GHIJKLMNOPQRSTUV":  # Here you can add or reduce the columns
+            for column in "GHIJKLMNOPQRSTUVWXYZ":  # Here you can add or reduce the columns
                 modelCell = "{}{}".format(column, row)
                 modelVal = currentSheet[modelCell].value
 
-                if (modelVal == None) or isinstance(modelVal, str) == False:
+                if (modelVal == None) or isinstance(modelVal, float) == True:
                     continue
 
-                elif (modelVal[:6] == "ASC-DP") or (modelVal[:4] == "2929") or (modelVal[:4] == "3030"):
-                    for row2 in range (row+11, 50):
-                        if currentSheet[modelCell].value != None:
+                modelVal = str(modelVal)
+
+                if (modelVal[:6] == "ASC-DP") or (modelVal[:4] == "2929") or (modelVal[:4] == "3030"):
+                    bettarow, gammaRow = check_for_BettaGamma(4)
+                    if (bettarow == None):
+                        print("bettarow is None")
+
+                    elif currentSheet[gammaRow + str(bettarow+2)].value != None:
                             return [row, column, modelCell, modelVal]
+                    else:
+                        return [row, column, modelCell, None]
 
         return [0, 0, None, None]
 
