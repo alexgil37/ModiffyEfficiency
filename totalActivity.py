@@ -11,6 +11,7 @@ filesWithNoMatchingSN = list()
 sheetsOfFilesWithNoMatchingSN = list()
 counts = list()
 backgroundCounts = list()
+invalidSheets = list()
 
 
 def main(path, savePath):
@@ -196,21 +197,39 @@ def main(path, savePath):
             currentSheetString = currentSheetString[12:]
             currentSheetString = currentSheetString[:-2]
 
-            height = find_height(currentSheet)
-            
+            betaRow, betaCol = check_for_BettaGamma(3)
+            backgroundCol = chr(ord(instModelColumn) + 1)
+            index = 0
+            if betaRow is None or betaCol is None:
+                invalidSheets.append(currentSheet)
 
+            else:
+                # There will always be at most 20 counts per survey
+                for cell in range(2, 22):
+                    cellValue = currentSheet[betaCol + str(betaRow+cell)].value
+                    if cellValue is None:
+                        continue
+                    else:
+                        counts.append(cellValue)
+                        backgroundCounts.append(currentSheet[backgroundCol + str(betaRow+cell)].value)
 
+                    index += 1
 
-            # Write the current Worksheet
-            QCworksheet.write(QCfileRow, 0, tail)
-            QCworksheet.write(QCfileRow, 1, currentSheetString)
-            QCworksheet.write(QCfileRow, 2, surveyNumber)
-            QCworksheet.write(QCfileRow, 3, instSNcell.value)
-            QCworksheet.write(QCfileRow, 4, instCalDueDate.value, dateFormat)
-            QCworksheet.write(QCfileRow, 5, oldinstEfficiencyCell)
-            QCworksheet.write(QCfileRow, 6, serialNumber[1])
+            print("Counts")
+            print(counts)
+            print(backgroundCounts)
 
-            QCfileRow += 1
+            for x in range(0, len(counts)):
+
+                # Write the current Worksheet
+                QCworksheet.write(QCfileRow, 0, tail)
+                QCworksheet.write(QCfileRow, 1, currentSheetString)
+                QCworksheet.write(QCfileRow, 2, surveyNumber)
+                QCworksheet.write(QCfileRow, 3, counts[x])
+                QCworksheet.write(QCfileRow, 4, backgroundCounts[x])
+                QCworksheet.write(QCfileRow, 5, oldinstEfficiencyCell)
+
+                QCfileRow += 1
 
         theFile.close()
         theFile.save(file)
