@@ -9,6 +9,8 @@ instrumentModel = '2360/43-93'
 
 filesWithNoMatchingSN = list()
 sheetsOfFilesWithNoMatchingSN = list()
+counts = list()
+backgroundCounts = list()
 
 
 def main(path, savePath):
@@ -75,6 +77,17 @@ def main(path, savePath):
                     return [row, column]
 
         return [None, None]
+
+
+    def find_height(currentSheet, topCol, topRow):
+        height = 0
+        for row in range(0, 20):
+            value = currentSheet[topCol + str(topRow+row)].value
+            if value != None:
+                height += 1
+
+            else :
+                return height
 
 
     def find_instrument_sn_cell(instModelRow, instModelColumn):
@@ -182,6 +195,11 @@ def main(path, savePath):
             currentSheetString = str(currentSheet)
             currentSheetString = currentSheetString[12:]
             currentSheetString = currentSheetString[:-2]
+
+            height = find_height(currentSheet)
+            
+
+
 
             # Write the current Worksheet
             QCworksheet.write(QCfileRow, 0, tail)
