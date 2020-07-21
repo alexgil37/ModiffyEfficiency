@@ -85,9 +85,11 @@ button2.place(x=218, y=29)
 button3 = tk.Button(root, text="Modify Efficiency",  command=dummy1)
 button3.place(x=30, y=65)
 button3 = tk.Button(root, text="Find Efficiency",  command=dummy2)
-button3.place(x=150, y=65)
+button3.place(x=170, y=65)
 button3 = tk.Button(root, text="Find Removable Data",  command=dummy3)
-button3.place(x=72, y=95)
+button3.place(x=19, y=95)
+button3 = tk.Button(root, text="Find Total Activity",  command=dummy2)
+button3.place(x=161, y=95)
 
 root.mainloop()
 
