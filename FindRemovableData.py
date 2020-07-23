@@ -43,6 +43,7 @@ def main(path, savePath):
 
         return allFiles
 
+
     """This function returns the location of the indicated Beta-Gamma"""
     def check_for_BettaGamma(num):
         found = 0
@@ -59,7 +60,23 @@ def main(path, savePath):
 
         return [None, None]
 
+    def second_find_instrument_model_cell(currentSheet):
+        for row in range(1, 30):
+            for column in "GHIJKLMNOPQRSTUVWXYZ":  # Here you can add or reduce the columns
+                modelCell = "{}{}".format(column, row)
+                modelVal = currentSheet[modelCell].value
 
+                if (modelVal is None) or isinstance(modelVal, float) == True:
+                    continue
+
+                modelVal = str(modelVal)
+
+                if (modelVal[:6] == "ASC-DP") or (modelVal[:4] == "2929") or (modelVal[:4] == "3030"):
+                    tempVal = currentSheet[column + str(row+11)].value
+                    if tempVal is not None:
+                        return [row, column, modelCell, modelVal]
+
+        return [0, 0, None, None]
 
     def find_instrument_model_cell(currentSheet):
         for row in range(1, 30):
@@ -67,7 +84,7 @@ def main(path, savePath):
                 modelCell = "{}{}".format(column, row)
                 modelVal = currentSheet[modelCell].value
 
-                if (modelVal == None) or isinstance(modelVal, float) == True:
+                if (modelVal is None) or isinstance(modelVal, float) == True:
                     continue
 
                 modelVal = str(modelVal)
@@ -78,7 +95,7 @@ def main(path, savePath):
                         print("bettarow is None")
 
                     elif currentSheet[gammaRow + str(bettarow+2)].value != None:
-                            return [row, column, modelCell, modelVal]
+                        return [row, column, modelCell, modelVal]
                     else:
                         return [row, column, modelCell, None]
 
@@ -90,11 +107,6 @@ def main(path, savePath):
         snCol = instModelColumn
         snCell = currentSheet[snCol + snRow]
 
-        print('xxxxxxxxxxx')
-        print(snRow)
-        print(snCol)
-        print(snCell.value)
-
         return snCell
 
 
@@ -102,10 +114,6 @@ def main(path, savePath):
         calRow = str(int(instModelRow) + 2)
         calCol = chr(ord(instModelColumn))
         calCell = currentSheet[calCol + calRow]
-
-        print(calCell.value)
-        print(calRow)
-        print(calCol)
 
         return calCell
 
@@ -118,10 +126,6 @@ def main(path, savePath):
         if type(effCell).__name__ == 'MergedCell':
             effCol = chr(ord(instModelColumn) + 3)
             effCell = currentSheet[effCol + effRow]
-
-        print(effCell.value)
-        print(effRow)
-        print(effCol)
 
         return effCell
 
@@ -159,6 +163,7 @@ def main(path, savePath):
 
     filesWithNoMatchingSN = list()
     sheetsOfFilesWithNoMatchingSN = list()
+    invalidSheets = list()
 
     files = getListOfFiles(path)
 
@@ -174,7 +179,12 @@ def main(path, savePath):
     dateFormat = QCworkbook.add_format({'num_format': 'mm/dd/yyyy'})
 
     for file in files:
-        theFile = openpyxl.load_workbook(file)
+        if file[-4:] != "xlsx":
+            continue
+        try:
+            theFile = openpyxl.load_workbook(file)
+        except IOError:
+            print(file + " could not be opened")
         allSheetNames = theFile.sheetnames
 
         print("All sheet names {} ".format(theFile.sheetnames))
@@ -186,6 +196,11 @@ def main(path, savePath):
             surveyNumber = find_survey_number(currentSheet)
 
             print("The cell is {}, the row is {} and the column is {} ".format(instModelCell, instModelRow, instModelColumn))
+
+            betaRow, betaCol = check_for_BettaGamma(3)
+            if betaRow is None or betaCol is None:
+                invalidSheets.append(file)
+                continue
 
             if instModelCell is None:
                 continue
@@ -217,8 +232,58 @@ def main(path, savePath):
 
             QCfileRow += 1
 
+
         theFile.close()
-        theFile.save(file)
+
+
+    """redo but for the other list"""
+    print("IN THE INVALID BETA ")
+    print(invalidSheets)
+
+    for file in invalidSheets:
+        theFile = openpyxl.load_workbook(file)
+        allSheetNames = theFile.sheetnames
+
+        for x in allSheetNames:
+            print("Current sheet name is {}" .format(x))
+            currentSheet = theFile[x]
+            instModelRow, instModelColumn, instModelCell, instModel = second_find_instrument_model_cell(currentSheet)
+            surveyNumber = find_survey_number(currentSheet)
+
+            print(instModelCell)
+
+            if instModelCell is None:
+                continue
+
+            instSNcell = find_instrument_sn_cell(instModelRow, instModelColumn)
+            instEfficiencyCell = find_instrument_efficiency(instModelRow, instModelColumn)
+
+            instCalDueDate = find_cal_due_date(instModelRow, instModelColumn)
+            serialNumber = find_efficiency(instSNcell, instEfficiencyCell)
+
+            if serialNumber[0] is None:
+                filesWithNoMatchingSN.append(file)
+                sheetsOfFilesWithNoMatchingSN.append(currentSheet)
+
+            # Find the file name
+            head, tail = os.path.split(file)
+
+            # Find the Name of the worksheet
+            currentSheetString = str(currentSheet)
+            currentSheetString = currentSheetString[12:]
+            currentSheetString = currentSheetString[:-2]
+
+            # Write the current Worksheet
+            QCworksheet.write(QCfileRow, 0, tail)
+            QCworksheet.write(QCfileRow, 1, currentSheetString)
+            QCworksheet.write(QCfileRow, 2, surveyNumber)
+            QCworksheet.write(QCfileRow, 3, instModel)
+            QCworksheet.write(QCfileRow, 4, instSNcell.value)
+            QCworksheet.write(QCfileRow, 5, instCalDueDate.value, dateFormat)
+
+            QCfileRow += 1
+
+        theFile.close()
 
     QCworkbook.close()
 
@@ -226,3 +291,5 @@ def main(path, savePath):
     os.startfile(savePath + '\\' + 'QC-Removable.xlsx')
 
     return
+
+
