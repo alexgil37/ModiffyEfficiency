@@ -56,6 +56,7 @@ def main(path, savePath):
             for column in "GHIJKLMNOPQRSTUVWXYZ":  # Here you can add or reduce the columns
                 modelCell = "{}{}".format(column, row)
                 print(file)
+                print(currentSheet)
                 if currentSheet[modelCell].value == instrumentModel:
                     print("the row is {0} and the column {1}" .format(row, column))
                     print(currentSheet[modelCell].value)
@@ -139,26 +140,22 @@ def main(path, savePath):
                 modelVal = currentSheet[column + str(row)].value
                 if modelVal == "Background Counts":
                     Col = chr(ord(column) + 5)
+                    print("first Col: " + Col)
                     cell = currentSheet[Col + str(row)]
 
-                    # If merged cell go over 1
-                    if type(cell).__name__ != 'MergedCell':
-                        Col = chr(ord(column) + 1)
-                        modelVal = currentSheet[Col + str(row)].value
-                        if modelVal is not None:
-                            return [0, 0, modelVal]
+                    if type(cell).__name__ == 'MergedCell':
+                        Col = chr(ord(column) + 6)
+                        print("Second Col: " + Col)
 
-                    else:
-                        modelVal = currentSheet[Col + str(row)].value
-                        if modelVal is not None:
-                            return [0, 0, modelVal]
+                    modelVal = currentSheet[Col + str(row)].value
+                    print("Model Val: " + str(modelVal))
+                    if modelVal is not None:
+                        print("Returning modelVal")
+                        return modelVal
 
-                if modelVal == "Bldg Material Bkg":
-                    return [row, column, None]
+        return None
 
-        return [None, None, None]
-
-
+    QCfileRow = 1
     files = getListOfFiles(path)
 
     """This is used for the exe"""
@@ -168,8 +165,6 @@ def main(path, savePath):
     """This is used when running the program"""
     with open('package.json') as instruments_file:
         instrumentsData = json.load(instruments_file)
-
-    QCfileRow = 1
 
     for file in files:
         theFile = openpyxl.load_workbook(file)
@@ -202,9 +197,7 @@ def main(path, savePath):
             currentSheetString = currentSheetString[:-2]
 
             betaRow, betaCol = check_for_BettaGamma(3)
-            backgroundCol = chr(ord(betaCol) + 1)
             index = 0
-
 
             if betaRow is None or betaCol is None:
                 invalidSheets.append(file)
@@ -212,6 +205,7 @@ def main(path, savePath):
 
             else:
                 # There will always be at most 20 counts per survey
+                backgroundCol = chr(ord(betaCol) + 1)
                 n = 1
                 # Go until you get to Gross Counts
                 while currentSheet[betaCol + str(betaRow+n)].value is None:
@@ -230,6 +224,7 @@ def main(path, savePath):
                         print("cell Value: " + str(cellValue))
                         print("betaCol: " + betaCol)
                         print("backgroundCol: " + backgroundCol)
+                        print("betaRow+Cell" + str(betaRow+cell))
                         print("backgroundValue: " + str(backgroundValue))
 
                     index += 1
@@ -262,13 +257,16 @@ def main(path, savePath):
             instModelRow, instModelColumn, instModelCell = find_instrument_model_cell(currentSheet)
             surveyNumber = find_instrument_model_cell(currentSheet)
 
+            print(currentSheet["H11"].value)
+
             if instModelCell is None:
                 continue
-            instSNcell = find_instrument_model_cell(instModelRow)
-            instEfficiencyCell = find_instrument_model_cell(instModelRow)
+
+            instSNcell = find_instrument_sn_cell(instModelRow, instModelColumn)
+            instEfficiencyCell = find_instrument_efficiency(instModelRow, instModelColumn)
 
             oldinstEfficiencyCell = instEfficiencyCell.value
-            serialNumber = find_instrument_model_cell(instSNcell)
+            serialNumber = find_efficiency(instSNcell)
 
             if serialNumber[0] is None:
                 filesWithNoMatchingSN.append(file)
@@ -282,56 +280,42 @@ def main(path, savePath):
             currentSheetString = currentSheetString[12:]
             currentSheetString = currentSheetString[:-2]
 
-            backgroundRow, backgroundColumn, backgroundVal = find_backgroud()
-            betaRow, betaCol = check_for_BettaGamma(3)
-            backgroundCol = chr(ord(instModelColumn) + 1)
+            backgroundVal = find_backgroud()
+            betaRow, betaCol = check_for_BettaGamma(1)
             index = 0
 
-            if backgroundRow is None and backgroundColumn is None and backgroundVal is None:
+            print("backgroundVal" + str(backgroundVal))
+
+            if backgroundVal is None:
+                print("The Value is None")
                 badfile.append(file)
                 continue
 
-            #  If we can use the column for the background
-            if backgroundVal is None:
-                n = 1
+            n = 0
+            betaRow = betaRow + 11
 
-                # Go until you get to Gross Counts
-                while currentSheet[betaCol + str(betaRow + n)].value is None:
-                    n += 1
+            # Go until you get to Gross Counts
+            for cell in range(n+1, n+21):
+                cellValue = currentSheet[betaCol + str(betaRow+cell)].value
+                if cellValue is None:
+                    continue
+                else:
+                    counts.append(cellValue)
+                    backgroundCounts.append(backgroundVal)
 
-                for cell in range(n + 1, n + 21):
-                    cellValue = currentSheet[betaCol + str(betaRow + cell)].value
-                    if cellValue is None:
-                        continue
-                    else:
-                        counts.append(cellValue)
-
-            # If we are given a single value for the background
-            elif backgroundRow is None and backgroundColumn is None:
-                n = 0
-
-                # Go until you get to Gross Counts
-                while currentSheet[betaCol + str(betaRow+n)].value is None:
-                    n += 1
-
-                for cell in range(n+1, n+21):
-                    cellValue = currentSheet[betaCol + str(betaRow+cell)].value
-                    if cellValue is None:
-                        continue
-                    else:
-                        counts.append(cellValue)
-                        backgroundCounts.append(backgroundVal)
-
-                    index += 1
+                index += 1
 
             for x in range(0, len(counts)):
-
+                currentCount = str(counts[x])
+                currentBackgroundCount = str(backgroundCounts[x])
+                print(type(QCworksheet))
+                
                 # Write the current Worksheet
                 QCworksheet.write(QCfileRow, 0, tail)
                 QCworksheet.write(QCfileRow, 1, currentSheetString)
                 QCworksheet.write(QCfileRow, 2, surveyNumber)
-                QCworksheet.write(QCfileRow, 3, counts[x])
-                QCworksheet.write(QCfileRow, 4, backgroundCounts[x])
+                QCworksheet.write(QCfileRow, 3, currentCount)
+                QCworksheet.write(QCfileRow, 4, currentBackgroundCount)
                 QCworksheet.write(QCfileRow, 5, oldinstEfficiencyCell)
 
                 QCfileRow += 1

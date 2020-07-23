@@ -232,7 +232,6 @@ def main(path, savePath):
 
             QCfileRow += 1
 
-
         theFile.close()
 
 
@@ -291,5 +290,3 @@ def main(path, savePath):
     os.startfile(savePath + '\\' + 'QC-Removable.xlsx')
 
     return
-
-
