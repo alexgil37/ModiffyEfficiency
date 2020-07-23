@@ -173,6 +173,16 @@ def main(path, savePath):
         for x in allSheetNames:
             print("Current sheet name is {}" .format(x))
             currentSheet = theFile[x]
+            print(file)
+            print(currentSheet)
+
+            # Check if current sheet is a map
+            currentSheetString = str(currentSheet)
+            currentSheetString = currentSheetString[12:]
+            currentSheetString = currentSheetString[0:3]
+            if currentSheetString == "Map":
+                continue
+
             instModelRow, instModelColumn, instModelCell = find_instrument_model_cell(currentSheet)
             surveyNumber = find_survey_number(currentSheet)
 
@@ -254,8 +264,18 @@ def main(path, savePath):
         for x in allSheetNames:
             print("Current sheet name is {}" .format(x))
             currentSheet = theFile[x]
+            print(file)
+            print(currentSheet)
+
+            # Check if current sheet is a map
+            currentSheetString = str(currentSheet)
+            currentSheetString = currentSheetString[12:]
+            currentSheetString = currentSheetString[0:3]
+            if currentSheetString == "Map":
+                continue
+
             instModelRow, instModelColumn, instModelCell = find_instrument_model_cell(currentSheet)
-            surveyNumber = find_instrument_model_cell(currentSheet)
+            surveyNumber = find_survey_number(currentSheet)
 
             print(currentSheet["H11"].value)
 
@@ -292,6 +312,8 @@ def main(path, savePath):
                 continue
 
             n = 0
+            if betaRow is None:
+                continue
             betaRow = betaRow + 11
 
             # Go until you get to Gross Counts
@@ -308,6 +330,7 @@ def main(path, savePath):
             for x in range(0, len(counts)):
                 currentCount = str(counts[x])
                 currentBackgroundCount = str(backgroundCounts[x])
+                surveyNumber = str(surveyNumber)
                 print(type(QCworksheet))
                 
                 # Write the current Worksheet
