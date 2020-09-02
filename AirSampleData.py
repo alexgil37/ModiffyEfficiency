@@ -3,7 +3,7 @@ import json
 import os
 import sys
 import xlsxwriter
-from distutils.dir_util import copy_tree
+from pycel import ExcelCompiler
 
 def main(path, savePath):
     # Create the output folder
@@ -117,16 +117,20 @@ def main(path, savePath):
 
         return typeCell
 
+    #works for activity and mdc
     def find_activity(currentSheet, activityTitleCell):
         row = int(activityTitleCell[0])
         print(row)
         col = activityTitleCell[1]
         print(col)
 
-        activityAlpha = currentSheet[chr(ord(col) + 4) + str(row)]
-        activityBeta = currentSheet[chr(ord(col) + 7) + str(row)]
+        # activityAlpha = currentSheet[chr(ord(col) + 4) + str(row)]
+        # activityBeta = currentSheet[chr(ord(col) + 7) + str(row)]
 
-        return [activityAlpha, activityBeta]
+
+        # return [activityAlpha, activityBeta]
+        return [(chr(ord(col) + 4) + str(row)), (chr(ord(col) + 7) + str(row))]
+
 
 
     files = getListOfFiles(path)
@@ -136,6 +140,7 @@ def main(path, savePath):
     dateFormat = QCworkbook.add_format({'num_format': 'mm/dd/yyyy'})
 
     for file in files:
+        excel = ExcelCompiler(filename=file)
         theFile = openpyxl.load_workbook(file)
         allSheetNames = theFile.sheetnames
 
@@ -165,7 +170,9 @@ def main(path, savePath):
             activityTitleCell = find_cell(currentSheet, "Activity (µCi/mL)")
             activityCell = find_activity(currentSheet, activityTitleCell)
 
-
+            # find mdc
+            mdcTitleCell = find_cell(currentSheet, "MDC (µCi/mL)")
+            mdcCell = find_activity(currentSheet, mdcTitleCell)
 
             # Find the file name
             head, tail = os.path.split(file)
@@ -175,15 +182,33 @@ def main(path, savePath):
             currentSheetString = currentSheetString[12:]
             currentSheetString = currentSheetString[:-2]
 
+            # Find the values of alpha and beta activity
+            alphaCell = currentSheetString + "!" + str(activityCell[0])
+            alphaActivity = excel.evaluate(alphaCell)
+
+            betaCell = currentSheetString + "!" + str(activityCell[1])
+            betaActivity = excel.evaluate(betaCell)
+
+
+            # Find the values of alpha and beta mdc
+            mdcalphaCell = currentSheetString + "!" + str(mdcCell[0])
+            alphaMdc = excel.evaluate(mdcalphaCell)
+
+            mdcbetaCell = currentSheetString + "!" + str(mdcCell[1])
+            betaMdc = excel.evaluate(mdcbetaCell)
+
             # Write the results to the QC file
             # Write the current Worksheet
-            # QCworksheet.write(QCfileRow, 0, surveyNumber)
+            head, tail = os.path.split(file)
+            QCworksheet.write(QCfileRow, 0, tail)
             QCworksheet.write(QCfileRow, 1, sampleIdCell.value)
             QCworksheet.write(QCfileRow, 2, dateCell.value, dateFormat)
             QCworksheet.write(QCfileRow, 3, locationCell.value)
             QCworksheet.write(QCfileRow, 4, typeCell.value)
-            QCworksheet.write(QCfileRow, 5, activityCell[0].value)
-            QCworksheet.write(QCfileRow, 7, activityCell[1].value)
+            QCworksheet.write(QCfileRow, 5, alphaActivity)
+            QCworksheet.write(QCfileRow, 7, betaActivity)
+            QCworksheet.write(QCfileRow, 6, alphaMdc)
+            QCworksheet.write(QCfileRow, 8, betaMdc)
 
             QCfileRow += 1
 
@@ -191,3 +216,4 @@ def main(path, savePath):
         theFile.save(file)
 
     QCworkbook.close()
+    os.startfile(savePath + '\\' + 'AirSamplesTrending.xlsx')
