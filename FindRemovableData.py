@@ -64,7 +64,7 @@ def main(path, savePath):
                 modelCell = "{}{}".format(column, row)
                 modelVal = currentSheet[modelCell].value
 
-                if (modelVal is None) or isinstance(modelVal, float) == True:
+                if (modelVal is None) or isinstance(modelVal, float) is True:
                     continue
 
                 modelVal = str(modelVal)
@@ -91,7 +91,7 @@ def main(path, savePath):
                     bettarow, gammaRow = check_for_BettaGamma(4)
                     if (bettarow == None):
                         print("bettarow is None")
-                    elif currentSheet[gammaRow + str(bettarow + 2)].value != None:
+                    elif currentSheet[gammaRow + str(bettarow + 2)].value is not None:
                         return [row, column, modelCell, modelVal]
                     else:
                         return [row, column, modelCell, None]
@@ -163,12 +163,12 @@ def main(path, savePath):
     files = getListOfFiles(path)
 
     """This is used for the exe"""
-    # with open(file=resource_path("package.json")) as instruments_file:
-    #     instrumentsData = json.load(instruments_file)
-
-    """This is used when running the program"""
-    with open('package.json') as instruments_file:
+    with open(file=resource_path("package.json")) as instruments_file:
         instrumentsData = json.load(instruments_file)
+
+    # """This is used when running the program"""
+    # with open('package.json') as instruments_file:
+    #     instrumentsData = json.load(instruments_file)
 
     QCfileRow = 1
     dateFormat = QCworkbook.add_format({'num_format': 'mm/dd/yyyy'})

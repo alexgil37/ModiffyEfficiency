@@ -174,12 +174,12 @@ def main(path, savePath):
     files = getListOfFiles(path)
 
     """This is used for the exe"""
-    # with open(file=resource_path("package.json")) as instruments_file:
-    #     instrumentsData = json.load(instruments_file)
+    with open(file=resource_path("package.json")) as instruments_file:
+        instrumentsData = json.load(instruments_file)
 
     """This is used when running the program"""
-    with open('package.json') as instruments_file:
-        instrumentsData = json.load(instruments_file)
+    # with open('package.json') as instruments_file:
+    #     instrumentsData = json.load(instruments_file)
 
     for file in files:
         theFile = openpyxl.load_workbook(file)

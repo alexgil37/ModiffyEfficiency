@@ -138,12 +138,12 @@ def main(path, savePath):
     files = getListOfFiles(path)
 
     """This is used for the exe"""
-    # with open(file=resource_path("package.json")) as instruments_file:
-    #     instrumentsData = json.load(instruments_file)
+    with open(file=resource_path("package.json")) as instruments_file:
+        instrumentsData = json.load(instruments_file)
 
     """This is used when running the program"""
-    with open('package.json') as instruments_file:
-        instrumentsData = json.load(instruments_file)
+    # with open('package.json') as instruments_file:
+    #     instrumentsData = json.load(instruments_file)
 
     QCfileRow = 1
     dateFormat = QCworkbook.add_format({'num_format': 'mm/dd/yyyy'})

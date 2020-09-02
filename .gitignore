@@ -1,4 +1,6 @@
 /.idea/
 /_pycache_/
 /venv/
+/build/
+/dist/
 *.xlsx
