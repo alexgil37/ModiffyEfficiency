@@ -66,6 +66,7 @@ def dummyAirSamples():
 
 
 root = Tk()
+root.resizable(width=False, height=False)
 root.title('Efficiency')
 root.geometry('300x200')
 image = PhotoImage(file=resource_path("images.png"))
@@ -79,6 +80,8 @@ label = tk.Label(root, text="Folder Path:")
 label.place(x=0, y=5)
 label2 = tk.Label(root, text="Save Path:")
 label2.place(x=0, y=30)
+label2 = tk.Label(root, text="Trending Data:")
+label2.place(x=0, y=145)
 
 entry =  tk.Entry(root, width=20, text=path)
 entry.place(x=67, y=7)
@@ -102,8 +105,10 @@ button3 = tk.Button(root, text="Find Total Activity",  command=dummy4)
 button3.place(x=161, y=95)
 
 
-airSampleButt = tk.Button(root, text="Air Samples Trending Data",  command=dummyAirSamples)
-airSampleButt.place(x=30, y=125)
+airSampleButt = tk.Button(root, text="Air Samples",  command=dummyAirSamples)
+airSampleButt.place(x=35, y=170)
+surveyButt = tk.Button(root, text="Survey",  command=dummyAirSamples)
+surveyButt.place(x=150, y=170)
 
 
 root.mainloop()
