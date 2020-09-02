@@ -3,6 +3,7 @@ from GetEffCell import main as mainGetEff
 from FindRemovableData import main as main3
 from totalActivity import main as main4
 from AirSampleData import main as mainAirSamples
+from SurveyTrending import main as main5
 import os
 import tkinter as tk
 from tkinter import filedialog
@@ -63,6 +64,10 @@ def dummyAirSamples():
     mainAirSamples(path.get(), savePath.get())
     completed_popup()
 
+def dummy5():
+    main5(path.get(), savePath.get())
+    completed_popup()
+
 
 
 root = Tk()
@@ -103,12 +108,10 @@ button3 = tk.Button(root, text="Find Removable Data",  command=dummy3)
 button3.place(x=19, y=95)
 button3 = tk.Button(root, text="Find Total Activity",  command=dummy4)
 button3.place(x=161, y=95)
-
-
 airSampleButt = tk.Button(root, text="Air Samples",  command=dummyAirSamples)
 airSampleButt.place(x=35, y=170)
-surveyButt = tk.Button(root, text="Survey",  command=dummyAirSamples)
-surveyButt.place(x=150, y=170)
+button3 = tk.Button(root, text="Survey",  command=dummy5)
+button3.place(x=150, y=170)
 
 
 root.mainloop()

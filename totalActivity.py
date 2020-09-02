@@ -3,7 +3,6 @@ import json
 import os
 import sys
 import xlsxwriter
-import totalActivityWeird
 
 instrumentModel = '2360/43-93'
 
