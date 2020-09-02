@@ -1,7 +1,8 @@
-from ModifyEffCell import main as main1
-from GetEffCell import main as main2
+from ModifyEffCell import main as mainModEff
+from GetEffCell import main as mainGetEff
 from FindRemovableData import main as main3
 from totalActivity import main as main4
+from AirSampleData import main as mainAirSamples
 import os
 import tkinter as tk
 from tkinter import filedialog
@@ -43,11 +44,11 @@ def Loading():
 
 
 def dummy1():
-    main1(path.get(), savePath.get())
+    mainModEff(path.get(), savePath.get())
     completed_popup()
 
 def dummy2():
-    main2(path.get(), savePath.get())
+    mainGetEff(path.get(), savePath.get())
     completed_popup()
 
 def dummy3():
@@ -57,6 +58,11 @@ def dummy3():
 def dummy4():
     main4(path.get(), savePath.get())
     completed_popup()
+
+def dummyAirSamples():
+    mainAirSamples(path.get(), savePath.get())
+    completed_popup()
+
 
 
 root = Tk()
@@ -94,6 +100,11 @@ button3 = tk.Button(root, text="Find Removable Data",  command=dummy3)
 button3.place(x=19, y=95)
 button3 = tk.Button(root, text="Find Total Activity",  command=dummy4)
 button3.place(x=161, y=95)
+
+
+airSampleButt = tk.Button(root, text="Air Samples Trending Data",  command=dummyAirSamples)
+airSampleButt.place(x=30, y=125)
+
 
 root.mainloop()
 

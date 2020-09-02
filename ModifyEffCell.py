@@ -5,8 +5,6 @@ import sys
 import xlsxwriter
 from distutils.dir_util import copy_tree
 
-
-
 def main(path, savePath):
     # Create the output folder
     if os.path.isfile(savePath):
