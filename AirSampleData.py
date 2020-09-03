@@ -124,18 +124,13 @@ def main(path, savePath):
         col = activityTitleCell[1]
         print(col)
 
-        # activityAlpha = currentSheet[chr(ord(col) + 4) + str(row)]
-        # activityBeta = currentSheet[chr(ord(col) + 7) + str(row)]
-
-
-        # return [activityAlpha, activityBeta]
         return [(chr(ord(col) + 4) + str(row)), (chr(ord(col) + 7) + str(row))]
-
 
 
     files = getListOfFiles(path)
 
     QCfileRow = 1
+
     # Create Date format to write to xlsx files
     dateFormat = QCworkbook.add_format({'num_format': 'mm/dd/yyyy'})
 
@@ -170,11 +165,11 @@ def main(path, savePath):
             activityTitleCell = find_cell(currentSheet, "Activity (µCi/mL)")
             activityCell = find_activity(currentSheet, activityTitleCell)
 
-            # find mdc
+            #find mdc
             mdcTitleCell = find_cell(currentSheet, "MDC (µCi/mL)")
             mdcCell = find_activity(currentSheet, mdcTitleCell)
 
-            # Find the file name
+            #find the file name
             head, tail = os.path.split(file)
 
             # Find the Name of the worksheet
@@ -188,7 +183,6 @@ def main(path, savePath):
 
             betaCell = currentSheetString + "!" + str(activityCell[1])
             betaActivity = excel.evaluate(betaCell)
-
 
             # Find the values of alpha and beta mdc
             mdcalphaCell = currentSheetString + "!" + str(mdcCell[0])

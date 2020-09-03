@@ -3,6 +3,7 @@ from GetEffCell import main as mainGetEff
 from FindRemovableData import main as main3
 from totalActivity import main as main4
 from AirSampleData import main as mainAirSamples
+from AirSampleCharts import main as mainAirSamplesCharts
 import os
 import tkinter as tk
 from tkinter import filedialog
@@ -63,6 +64,10 @@ def dummyAirSamples():
     mainAirSamples(path.get(), savePath.get())
     completed_popup()
 
+def dummyAirSamplesCharts():
+    mainAirSamplesCharts(path.get(), savePath.get())
+    completed_popup()
+
 
 
 root = Tk()
@@ -104,6 +109,9 @@ button3.place(x=161, y=95)
 
 airSampleButt = tk.Button(root, text="Air Samples Trending Data",  command=dummyAirSamples)
 airSampleButt.place(x=30, y=125)
+
+airSampleChartButt = tk.Button(root, text="Air Samples Trending Charts",  command=dummyAirSamplesCharts)
+airSampleChartButt.place(x=30, y=160)
 
 
 root.mainloop()
