@@ -73,11 +73,10 @@ def dummyAirSamplesCharts():
     completed_popup()
 
 
-
 root = Tk()
 root.resizable(width=False, height=False)
 root.title('Efficiency')
-root.geometry('300x200')
+root.geometry('300x260')
 image = PhotoImage(file=resource_path("images.png"))
 
 path = StringVar()
@@ -91,6 +90,8 @@ label2 = tk.Label(root, text="Save Path:")
 label2.place(x=0, y=30)
 label2 = tk.Label(root, text="Trending Data:")
 label2.place(x=0, y=145)
+label2 = tk.Label(root, text="Trending Charts:")
+label2.place(x=0, y=205)
 
 entry =  tk.Entry(root, width=20, text=path)
 entry.place(x=67, y=7)
@@ -116,8 +117,8 @@ airSampleButt = tk.Button(root, text="Air Samples",  command=dummyAirSamples)
 airSampleButt.place(x=35, y=170)
 button3 = tk.Button(root, text="Survey",  command=dummy5)
 button3.place(x=150, y=170)
-airSampleChartButt = tk.Button(root, text="Air Samples Trending Charts",  command=dummyAirSamplesCharts)
-airSampleChartButt.place(x=30, y=160)
+airSampleChartButt = tk.Button(root, text="Air Samples",  command=dummyAirSamplesCharts)
+airSampleChartButt.place(x=35, y=230)
 
 
 root.mainloop()
