@@ -1,5 +1,4 @@
 import openpyxl
-import json
 import os
 import sys
 import xlsxwriter
@@ -206,8 +205,8 @@ def main(path, savePath):
             QCworksheet.write(QCfileRow, 3, locationCell.value)
             QCworksheet.write(QCfileRow, 4, typeCell.value)
             QCworksheet.write(QCfileRow, 5, alphaActivity)
-            QCworksheet.write(QCfileRow, 7, betaActivity)
             QCworksheet.write(QCfileRow, 6, alphaMdc)
+            QCworksheet.write(QCfileRow, 7, betaActivity)
             QCworksheet.write(QCfileRow, 8, betaMdc)
 
             QCfileRow += 1
