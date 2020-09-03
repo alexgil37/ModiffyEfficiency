@@ -1,4 +1,5 @@
 import openpyxl
+import re
 import os
 import sys
 import xlsxwriter
@@ -141,6 +142,13 @@ def main(path, savePath):
 
         return valueCell
 
+    def remove_isblank(sheet, cellCord):
+        temp = sheet[cellCord].value
+        temp = re.sub("ISBLANK\([^)]+\)", "FALSE", temp)
+        sheet[cellCord].value = temp
+
+
+
     def check_for_BettaGamma(num):
         found = 0
         for row in range(1, 30):
@@ -181,11 +189,8 @@ def main(path, savePath):
         # For Openpyxl
         theFile = openpyxl.load_workbook(file)
         allSheetNames = theFile.sheetnames
-
         print(file)
         print("All sheet names {} ".format(theFile.sheetnames))
-
-
 
         for x in allSheetNames:
             print("Current sheet name is {}".format(x))
@@ -237,37 +242,27 @@ def main(path, savePath):
 
                     # If there is removable but no total activity
                     elif cellValue is None and removableValue is not None:
-                        removableDPMValue = currentSheet[removableDPMcol + str(betaRow + cell)].value
+                        removableDPMcell = removableDPMcol + str(betaRow + cell)
                         MDCCounts.append(None)
                         dpmCounts.append(None)
-                        removableCounts.append(removableDPMValue)
-                        DPMValue = None
-                        MDCValue = None
+                        removableCounts.append(removableDPMcell)
 
                     # If there is total activity but no removable
                     elif cellValue is not None and removableValue is None:
-                        MDCValue = currentSheet[MDCcol + str(betaRow + cell)].value
-                        DPMValue = currentSheet[DPMcol + str(betaRow + cell)].value
-                        MDCCounts.append(MDCValue)
-                        dpmCounts.append(DPMValue)
+                        MDCcell = MDCcol + str(betaRow + cell)
+                        DPMcell = DPMcol + str(betaRow + cell)
+                        MDCCounts.append(MDCcell)
+                        dpmCounts.append(DPMcell)
                         removableCounts.append(None)
 
                     # If there is both removable and total activity
                     else:
-                        MDCValue = currentSheet[MDCcol + str(betaRow + cell)].value
-                        DPMValue = currentSheet[DPMcol + str(betaRow + cell)].value
-                        removableDPMValue = currentSheet[removableDPMcol + str(betaRow + cell)].value
-                        MDCCounts.append(MDCValue)
-                        dpmCounts.append(DPMValue)
-                        removableCounts.append(removableDPMValue)
-
-                    print(file)
-                    print("DPM value: " + str(DPMValue))
-                    print("betaCol: " + betaCol)
-                    print("backgroundCol: " + MDCcol)
-                    print("betaRow+Cell" + str(betaRow + cell))
-                    print("MDCValue: " + str(MDCValue))
-                    print("removableValue: " + str(DPMValue))
+                        MDCcell = MDCcol + str(betaRow + cell)
+                        DPMcell = DPMcol + str(betaRow + cell)
+                        removableDPMcell = removableDPMcol + str(betaRow + cell)
+                        MDCCounts.append(MDCcell)
+                        dpmCounts.append(DPMcell)
+                        removableCounts.append(removableDPMcell)
 
                     index += 1
 
@@ -304,31 +299,42 @@ def main(path, savePath):
                 print("The file " + str(file))
                 print("The Sheet " + currentSheetString)
                 print("MDCCounts " + str(MDCCounts[x]))
-                temp = "\" \""
-                print("temp is " + temp)
+                ttest = 0
 
-                if MDCCounts[x] is not None:
-                    tempCell = currentSheetString + "!" + str(MDCCounts[x])
-                    tempCell = tempCell.replace("$", "")
-                    tempCell = tempCell.replace("\" \"", "\"\"")
-                    print("temp cell " + tempCell)
-                    MDCCounts[x] = excel.evaluate(tempCell)
-
-                print("dpmCounts " + str(dpmCounts[x]))
                 if dpmCounts[x] is not None:
+                    netCPM = dpmCounts[x]
+                    netCol = chr(ord(netCPM[0]) - 1)
+                    netRow = netCPM[1:]
+                    netCPM = netCol + netRow
+
+                    remove_isblank(currentSheet, str(MDCCounts[x]))
+                    remove_isblank(currentSheet, netCPM)
+                    remove_isblank(currentSheet, str(dpmCounts[x]))
+                    theFile.save(file)
+                    excel = ExcelCompiler(filename=file)
+                    tempCell = currentSheetString + "!" + str(MDCCounts[x])
+                    print(tempCell)
+                    MDCCounts[x] = excel.evaluate(tempCell)
                     tempCell = currentSheetString + "!" + str(dpmCounts[x])
-                    tempCell = tempCell.replace("$", "")
+                    print(tempCell)
                     dpmCounts[x] = excel.evaluate(tempCell)
+                    ttest += 1
 
-                print("removableCounts " + str(removableCounts[x]))
+
                 if removableCounts[x] is not None:
+                    if ttest > 0:
+                        ttest = ttest
+                    netCPM = removableCounts[x]
+                    netCol = chr(ord(netCPM[0]) - 1)
+                    netRow = netCPM[1:]
+                    netCPM = netCol + netRow
+
+                    remove_isblank(currentSheet, netCPM)
+                    remove_isblank(currentSheet, str(removableCounts[x]))
+                    theFile.save(file)
+                    excel = ExcelCompiler(filename=file)
                     tempCell = currentSheetString + "!" + str(removableCounts[x])
-                    tempCell = tempCell.replace("$", "")
                     removableCounts[x] = excel.evaluate(tempCell)
-
-
-
-
 
             # Write the results to the QC file
             # Write the current Worksheet
@@ -356,6 +362,74 @@ def main(path, savePath):
         MDCCounts.clear()
         dpmCounts.clear()
         removableCounts.clear()
+
+    """redo but for the other list"""
+    print("IN THE INVALID BETA ")
+    del files
+    for file in invalidSheets:
+        theFile = openpyxl.load_workbook(file)
+        allSheetNames = theFile.sheetnames
+        print(file)
+        print("All sheet names {} ".format(theFile.sheetnames))
+
+        for x in allSheetNames:
+            print("Current sheet name is {}".format(x))
+            currentSheet = theFile[x]
+
+            # If it is a map sheet skip
+            currentSheetString = str(currentSheet)
+            currentSheetString = currentSheetString[12:]
+            checkBlankString = currentSheetString[0:5]
+            currentSheetString = currentSheetString[0:3]
+            if currentSheetString == "Map" or checkBlankString == "Blank":
+                continue
+
+            betaRow, betaCol = check_for_BettaGamma2(3)
+            if betaRow is not None or betaCol is not None:
+                continue
+
+            else:
+                betaRow, betaCol = check_for_BettaGamma(1)
+                removableBetaRow, removableBetaCol = check_for_BettaGamma(2)
+                DPMcol = chr(ord(betaCol) + 1)
+                removableDPMcol = chr(ord(removableBetaCol) + 1)
+
+                n = 1
+                # Go until it is not None
+                while currentSheet[betaCol + str(betaRow + n)].value is not "gross counts":
+                    n += 1
+
+                # There will always be at most 20 counts per survey
+                for cell in range(n + 1, n + 21):
+                    cellValue = currentSheet[betaCol + str(betaRow + cell)].value
+                    removableValue = currentSheet[removableBetaCol + str(removableBetaRow + cell)].value
+
+                    # If there is nothing in both removable and total activity
+                    if cellValue is None and removableValue is None:
+                        continue
+
+                    # If there is removable but no total activity
+                    elif cellValue is None and removableValue is not None:
+                        removableDPMcell = removableDPMcol + str(betaRow + cell)
+                        dpmCounts.append(None)
+                        removableCounts.append(removableDPMcell)
+
+                    # If there is total activity but no removable
+                    elif cellValue is not None and removableValue is None:
+                        DPMcell = DPMcol + str(betaRow + cell)
+                        dpmCounts.append(DPMcell)
+                        removableCounts.append(None)
+
+                    # If there is both removable and total activity
+                    else:
+                        DPMcell = DPMcol + str(betaRow + cell)
+                        removableDPMcell = removableDPMcol + str(betaRow + cell)
+                        dpmCounts.append(DPMcell)
+                        removableCounts.append(removableDPMcell)
+
+                    index += 1
+
+
 
     QCworkbook.close()
     os.startfile(savePath + '\\' + 'SurveyTrending.xlsx')
