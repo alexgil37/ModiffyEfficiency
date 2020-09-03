@@ -24,14 +24,18 @@ def main(path, savePath):
 
     # create columns with headers
     QCworksheet.write(0, 0, 'File Name')
-    QCworksheet.write(0, 1, 'Sample ID')
+    QCworksheet.write(0, 1, 'Survey Number')
     QCworksheet.write(0, 2, 'Date')
-    QCworksheet.write(0, 3, 'Location')
-    QCworksheet.write(0, 4, 'Sample Type')
-    QCworksheet.write(0, 5, 'Alpha Activity')
-    QCworksheet.write(0, 6, 'Alpha MDC')
-    QCworksheet.write(0, 7, 'Beta Activity')
-    QCworksheet.write(0, 8, 'Beta MDC')
+    QCworksheet.write(0, 3, 'Survey Tech')
+    QCworksheet.write(0, 4, 'Count room Tech')
+    QCworksheet.write(0, 5, 'Date of Count Room')
+    QCworksheet.write(0, 6, 'Survey Type')
+    QCworksheet.write(0, 7, 'Level of Posting')
+    QCworksheet.write(0, 8, 'Item Surveyed')
+    QCworksheet.write(0, 9, 'MDC of total Activity')
+    QCworksheet.write(0, 10, 'DPM total activity')
+    QCworksheet.write(0, 11, 'MDC of removable')
+    QCworksheet.write(0, 12, 'Removable DPM')
 
     def resource_path(relative_path):
         base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.dirname(__file__)))
@@ -174,12 +178,11 @@ def main(path, savePath):
     dateFormat = QCworkbook.add_format({'num_format': 'mm/dd/yyyy'})
 
     for file in files:
-        # For PyCel
-        excel = ExcelCompiler(filename=file)
         # For Openpyxl
         theFile = openpyxl.load_workbook(file)
         allSheetNames = theFile.sheetnames
 
+        print(file)
         print("All sheet names {} ".format(theFile.sheetnames))
 
 
@@ -191,8 +194,9 @@ def main(path, savePath):
             # If it is a map sheet skip
             currentSheetString = str(currentSheet)
             currentSheetString = currentSheetString[12:]
+            checkBlankString = currentSheetString[0:5]
             currentSheetString = currentSheetString[0:3]
-            if currentSheetString == "Map":
+            if currentSheetString == "Map" or checkBlankString == "Blank":
                 continue
 
             # Check which format it is
@@ -202,19 +206,20 @@ def main(path, savePath):
 
             # Prevent repeats be added to invalid Sheets list
             if betaRow is None or betaCol is None:
+                needToContinue = True
                 if len(invalidSheets) > 0:
-                    if invalidSheets.count(file) > 0:
-                        needToContinue = False
+                    if invalidSheets.count(file) == 0:
+                        invalidSheets.append(file)
+
                 else:
                     invalidSheets.append(file)
-                    needToContinue = True
 
             # Find MDC Value and DPM for total activity as well as Removable DPM
             else:
                 removableBetaRow, removableBetaCol = check_for_BettaGamma(4)
                 MDCcol = chr(ord(betaCol) + 2)
                 DPMcol = chr(ord(betaCol) + 4)
-                removableDPMcol = chr(ord(removableBetaRow) + 2)
+                removableDPMcol = chr(ord(removableBetaCol) + 2)
 
                 n = 1
                 # Go until it is not None
@@ -224,7 +229,7 @@ def main(path, savePath):
                 # There will always be at most 20 counts per survey
                 for cell in range(n + 1, n + 21):
                     cellValue = currentSheet[betaCol + str(betaRow + cell)].value
-                    removableValue = currentSheet[removableDPMcol + str(removableBetaRow + cell)].value
+                    removableValue = currentSheet[removableBetaCol + str(removableBetaRow + cell)].value
 
                     # If there is nothing in both removable and total activity
                     if cellValue is None and removableValue is None:
@@ -232,9 +237,12 @@ def main(path, savePath):
 
                     # If there is removable but no total activity
                     elif cellValue is None and removableValue is not None:
+                        removableDPMValue = currentSheet[removableDPMcol + str(betaRow + cell)].value
                         MDCCounts.append(None)
                         dpmCounts.append(None)
-                        removableCounts.append(removableValue)
+                        removableCounts.append(removableDPMValue)
+                        DPMValue = None
+                        MDCValue = None
 
                     # If there is total activity but no removable
                     elif cellValue is not None and removableValue is None:
@@ -248,9 +256,10 @@ def main(path, savePath):
                     else:
                         MDCValue = currentSheet[MDCcol + str(betaRow + cell)].value
                         DPMValue = currentSheet[DPMcol + str(betaRow + cell)].value
+                        removableDPMValue = currentSheet[removableDPMcol + str(betaRow + cell)].value
                         MDCCounts.append(MDCValue)
                         dpmCounts.append(DPMValue)
-                        removableCounts.append(removableValue)
+                        removableCounts.append(removableDPMValue)
 
                     print(file)
                     print("DPM value: " + str(DPMValue))
@@ -283,10 +292,6 @@ def main(path, savePath):
             secondDateCell = find_title_data(currentSheet, dateTitleCell)
             print("After second date")
 
-
-
-
-
             # Find the Name of the worksheet
             currentSheetString = str(currentSheet)
             currentSheetString = currentSheetString[12:]
@@ -294,7 +299,32 @@ def main(path, savePath):
 
             # PyCel
             # Find the values of mdc and dpm
+            excel = ExcelCompiler(filename=file)
+            for x in range(0, len(removableCounts)):
+                print("The file " + str(file))
+                print("The Sheet " + currentSheetString)
+                print("MDCCounts " + str(MDCCounts[x]))
+                temp = "\" \""
+                print("temp is " + temp)
 
+                if MDCCounts[x] is not None:
+                    tempCell = currentSheetString + "!" + str(MDCCounts[x])
+                    tempCell = tempCell.replace("$", "")
+                    tempCell = tempCell.replace("\" \"", "\"\"")
+                    print("temp cell " + tempCell)
+                    MDCCounts[x] = excel.evaluate(tempCell)
+
+                print("dpmCounts " + str(dpmCounts[x]))
+                if dpmCounts[x] is not None:
+                    tempCell = currentSheetString + "!" + str(dpmCounts[x])
+                    tempCell = tempCell.replace("$", "")
+                    dpmCounts[x] = excel.evaluate(tempCell)
+
+                print("removableCounts " + str(removableCounts[x]))
+                if removableCounts[x] is not None:
+                    tempCell = currentSheetString + "!" + str(removableCounts[x])
+                    tempCell = tempCell.replace("$", "")
+                    removableCounts[x] = excel.evaluate(tempCell)
 
 
 
@@ -303,17 +333,21 @@ def main(path, savePath):
             # Write the results to the QC file
             # Write the current Worksheet
             head, tail = os.path.split(file)
-
+            length = len(removableCounts)
             for x in range(0, len(removableCounts)):
-                QCworksheet.write(QCfileRow, 0, tail)                           # File Name
-                QCworksheet.write(QCfileRow, 1, titleVals[0].value)             # Survey Number
-                QCworksheet.write(QCfileRow, 2, dateCell.value, dateFormat)     # Date
-                QCworksheet.write(QCfileRow, 3, titleVals[1].value)             # Survey Tech
-                QCworksheet.write(QCfileRow, 4, titleVals[2].value)             # Count room Tech
-                QCworksheet.write(QCfileRow, 5, secondDateCell.value)           # Date of Count Room Tech
-                QCworksheet.write(QCfileRow, 6, titleVals[3].value)             # Survey Type
-                QCworksheet.write(QCfileRow, 7, titleVals[4].value)             # Level of Posting
-                QCworksheet.write(QCfileRow, 8, titleVals[5].value)             # Item Surveyed
+                QCworksheet.write(QCfileRow, 0, tail)                                       # File Name
+                QCworksheet.write(QCfileRow, 1, titleVals[0].value)                         # Survey Number
+                QCworksheet.write(QCfileRow, 2, dateCell.value, dateFormat)                 # Date
+                QCworksheet.write(QCfileRow, 3, titleVals[1].value)                         # Survey Tech
+                QCworksheet.write(QCfileRow, 4, titleVals[2].value)                         # Count room Tech
+                QCworksheet.write(QCfileRow, 5, secondDateCell.value, dateFormat)           # Date of Count Room
+                QCworksheet.write(QCfileRow, 6, titleVals[3].value)                         # Survey Type
+                QCworksheet.write(QCfileRow, 7, titleVals[4].value)                         # Level of Posting
+                QCworksheet.write(QCfileRow, 8, titleVals[5].value)                         # Item Surveyed
+                QCworksheet.write(QCfileRow, 9, MDCCounts[x])                               # MDC of total Activity
+                QCworksheet.write(QCfileRow, 10, dpmCounts[x])                              # DPM total activity
+                QCworksheet.write(QCfileRow, 11, "MDCremovableCounts[x]")                   # MDC of removable
+                QCworksheet.write(QCfileRow, 12, removableCounts[x])                        # Removable DPM
 
                 QCfileRow += 1
 
