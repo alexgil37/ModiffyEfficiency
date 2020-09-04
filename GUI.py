@@ -33,7 +33,8 @@ def default_path():
 def save_path():
     curr_directory = os.getcwd()
     filename = filedialog.askdirectory(initialdir=curr_directory, title="Select Folder")
-    savePath.set(filename)
+    curr_directory = os.path.join(filename, "Output.csv")
+    savePath.set(curr_directory)
 
 
 def completed_popup():

@@ -94,7 +94,6 @@ def main(path, savePath):
         # find Survey number
         sampleIdTitleCell = find_cell(currentSheet, "Survey No")
         if sampleIdTitleCell[2] is None:
-            print("Success test")
             sampleIdTitleCell = find_cell(currentSheet, "Survey Number")
         sampleIdCell = find_title_data(currentSheet, sampleIdTitleCell)
         print("Survey Number")
@@ -105,7 +104,7 @@ def main(path, savePath):
         print("Survey tech")
 
         # find Count room tech
-        countRoomTechTitleCell = find_cell(currentSheet, "Date Counted")
+        countRoomTechTitleCell = find_cell(currentSheet, "Count Room Tech")
         countRoomTechCell = find_title_data(currentSheet, countRoomTechTitleCell)
         print("Survey count tech")
 
@@ -116,6 +115,8 @@ def main(path, savePath):
 
         # find Level of Posting
         postTitleCell = find_cell(currentSheet, "Level Of Posting")
+        if postTitleCell[2] is None:
+            postTitleCell = find_cell(currentSheet, "Level of Posting")
         postingCell = find_title_data(currentSheet, postTitleCell)
         print("Survey posting")
 
@@ -130,10 +131,7 @@ def main(path, savePath):
 
     def find_title_data(currentSheet, titleCell):
         row = int(titleCell[0])
-        print(row)
-        print(titleCell[1])
         col = chr(ord(titleCell[1]) + 1)
-        print(col)
 
         while type(currentSheet[col + str(row)]).__name__ == 'MergedCell':
             col = chr(ord(col) + 1)
@@ -143,6 +141,7 @@ def main(path, savePath):
         return valueCell
 
     def remove_isblank(sheet, cellCord):
+        print(cellCord)
         temp = sheet[cellCord].value
         temp = re.sub("ISBLANK\([^)]+\)", "FALSE", temp)
         sheet[cellCord].value = temp
@@ -294,7 +293,6 @@ def main(path, savePath):
 
             # PyCel
             # Find the values of mdc and dpm
-            excel = ExcelCompiler(filename=file)
             for x in range(0, len(removableCounts)):
                 print("The file " + str(file))
                 print("The Sheet " + currentSheetString)
@@ -365,7 +363,12 @@ def main(path, savePath):
 
     """redo but for the other list"""
     print("IN THE INVALID BETA ")
-    del files
+    del dpmCounts
+    del MDCCounts
+    del removableCounts
+    dpmCounts = list()
+    removableCounts = list()
+
     for file in invalidSheets:
         theFile = openpyxl.load_workbook(file)
         allSheetNames = theFile.sheetnames
@@ -396,7 +399,8 @@ def main(path, savePath):
 
                 n = 1
                 # Go until it is not None
-                while currentSheet[betaCol + str(betaRow + n)].value is not "gross counts":
+                while currentSheet[betaCol + str(betaRow + n)].value != "gross counts":
+                    print(currentSheet[betaCol + str(betaRow + n)].value)
                     n += 1
 
                 # There will always be at most 20 counts per survey
@@ -429,7 +433,74 @@ def main(path, savePath):
 
                     index += 1
 
+                test = 1
 
+            # ***********Find Title Data**********
+            titleVals = find_title_vals(currentSheet)
+            print("After titlevals")
+
+            # find date
+            dateTitleCell = find_cell(currentSheet, "Date")
+            if dateTitleCell[2] is None or dateTitleCell[1] == 0:
+                dateTitleCell = find_cell(currentSheet, "Date Counted")
+            dateCell = find_title_data(currentSheet, dateTitleCell)
+            print("After date")
+
+            # Find Count Room Date Counted
+            dateTitleCell = find_date_cell(currentSheet, "Date Counted", 2)
+            if dateTitleCell[1] is None or dateTitleCell[1] == 0:
+                dateTitleCell = find_date_cell(currentSheet, "Date Counted", 1)
+            secondDateCell = find_title_data(currentSheet, dateTitleCell)
+            print("After second date")
+
+            currentSheetString = str(currentSheet)
+            currentSheetString = currentSheetString[12:]
+            currentSheetString = currentSheetString[:-2]
+
+            if currentSheet == "2360-190602 (2)":
+                ("on second sprintheet")
+            # Pycel
+            # Find the values of mdc and dpm
+            print(dpmCounts)
+            for x in range(0, len(removableCounts)):
+
+                if dpmCounts[x] is not None:
+                    remove_isblank(currentSheet, str(dpmCounts[x]))
+                    theFile.save(file)
+                    excel = ExcelCompiler(filename=file)
+                    tempCell = currentSheetString + "!" + str(dpmCounts[x])
+                    dpmCounts[x] = excel.evaluate(tempCell)
+
+                if removableCounts[x] is not None:
+                    remove_isblank(currentSheet, str(removableCounts[x]))
+                    theFile.save(file)
+                    excel = ExcelCompiler(filename=file)
+                    tempCell = currentSheetString + "!" + str(removableCounts[x])
+                    removableCounts[x] = excel.evaluate(tempCell)
+
+            print("Adding data to file.")
+            head, tail = os.path.split(file)
+            for x in range(0, len(removableCounts)):
+                QCworksheet.write(QCfileRow, 0, tail)  # File Name
+                QCworksheet.write(QCfileRow, 1, titleVals[0].value)  # Survey Number
+                QCworksheet.write(QCfileRow, 2, dateCell.value, dateFormat)  # Date
+                QCworksheet.write(QCfileRow, 3, titleVals[1].value)  # Survey Tech
+                QCworksheet.write(QCfileRow, 4, titleVals[2].value)  # Count room Tech
+                QCworksheet.write(QCfileRow, 5, secondDateCell.value, dateFormat)  # Date of Count Room
+                QCworksheet.write(QCfileRow, 6, titleVals[3].value)  # Survey Type
+                QCworksheet.write(QCfileRow, 7, titleVals[4].value)  # Level of Posting
+                QCworksheet.write(QCfileRow, 8, titleVals[5].value)  # Item Surveyed
+                QCworksheet.write(QCfileRow, 9, "MDCCounts[x]")  # MDC of total Activity
+                QCworksheet.write(QCfileRow, 10, dpmCounts[x])  # DPM total activity
+                QCworksheet.write(QCfileRow, 11, "MDCremovableCounts[x]")  # MDC of removable
+                QCworksheet.write(QCfileRow, 12, removableCounts[x])  # Removable DPM
+
+                QCfileRow += 1
+
+        theFile.close()
+        theFile.save(file)
+        dpmCounts.clear()
+        removableCounts.clear()
 
     QCworkbook.close()
     os.startfile(savePath + '\\' + 'SurveyTrending.xlsx')
