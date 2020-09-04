@@ -26,11 +26,9 @@ def main(path, savePath):
     QCworksheet.write(0, 7, 'Beta Activity')
     QCworksheet.write(0, 8, 'Beta MDC')
 
-
     def resource_path(relative_path):
         base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.dirname(__file__)))
         return os.path.join(base_path, relative_path)
-
 
     def getListOfFiles(dirName):
         listOfFile = os.listdir(dirName)
@@ -47,7 +45,6 @@ def main(path, savePath):
 
         return allFiles
 
-
     def find_cell(currentSheet, parameterToFind):
         for row in range(1, 40):
             for column in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":  # Here you can add or reduce the columns
@@ -56,7 +53,6 @@ def main(path, savePath):
 
                 if currentSheet[cell].value == parameterToFind:
                     print("the row is {0} and the column {1}".format(row, column))
-
                     print(currentSheet[cell].value)
                     print(cell)
 
@@ -125,6 +121,12 @@ def main(path, savePath):
 
         return [(chr(ord(col) + 4) + str(row)), (chr(ord(col) + 7) + str(row))]
 
+    # eliminate negative values
+    def eliminate_negative(cell):
+        if (excel.evaluate(cell) < 0):
+            return 0
+        else:
+            return excel.evaluate(cell)
 
     files = getListOfFiles(path)
 
@@ -178,17 +180,17 @@ def main(path, savePath):
 
             # Find the values of alpha and beta activity
             alphaCell = currentSheetString + "!" + str(activityCell[0])
-            alphaActivity = excel.evaluate(alphaCell)
+            alphaActivity = eliminate_negative(alphaCell)
 
             betaCell = currentSheetString + "!" + str(activityCell[1])
-            betaActivity = excel.evaluate(betaCell)
+            betaActivity = eliminate_negative(betaCell)
 
             # Find the values of alpha and beta mdc
             mdcalphaCell = currentSheetString + "!" + str(mdcCell[0])
-            alphaMdc = excel.evaluate(mdcalphaCell)
+            alphaMdc = eliminate_negative(mdcalphaCell)
 
             mdcbetaCell = currentSheetString + "!" + str(mdcCell[1])
-            betaMdc = excel.evaluate(mdcbetaCell)
+            betaMdc = eliminate_negative(mdcbetaCell)
 
             # Write the results to the QC file
             # Write the current Worksheet
