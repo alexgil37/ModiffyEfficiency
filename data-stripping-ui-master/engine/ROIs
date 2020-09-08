@@ -1,0 +1,48 @@
+[
+    {
+        "isotope": "Ra-226",
+        "start": 190,
+        "end": 227
+    },
+    {
+        "isotope": "Cs-137",
+        "start": 206,
+        "end": 247
+    },
+    {
+        "isotope": "Co-60-1173",
+        "start": 366,
+        "end": 437
+    },
+    {
+        "isotope": "Co-60-1332",
+        "start": 416,
+        "end": 496
+    },
+    {
+        "isotope": "K",
+        "start": 456,
+        "end": 544
+    },
+    {
+        "isotope": "U",
+        "start": 549,
+        "end": 656
+    },
+    {
+        "isotope": "Th",
+        "start": 843,
+        "end": 1005
+    },
+    {
+        "isotope": "Sr-90",
+        "start": 16,
+        "end": 100
+    },
+    {
+        "isotope": "Dep-U",
+        "start": 16,
+        "end": 100
+    }
+
+]
