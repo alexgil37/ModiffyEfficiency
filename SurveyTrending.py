@@ -497,6 +497,9 @@ def main(path, savePath):
 
                 QCfileRow += 1
 
+            dpmCounts.clear()
+            removableCounts.clear()
+
         theFile.close()
         theFile.save(file)
         dpmCounts.clear()
