@@ -3,6 +3,8 @@ import re
 import os
 import sys
 import xlsxwriter
+import numpy
+import statistics
 from pycel import ExcelCompiler
 
 
@@ -22,6 +24,7 @@ def main(path, savePath):
     # create excel QC file
     QCworkbook = xlsxwriter.Workbook(savePath + '\\' + 'SurveyTrending.xlsx')
     QCworksheet = QCworkbook.add_worksheet()
+    StatisticSheet = QCworkbook.add_worksheet()
 
     # create columns with headers
     QCworksheet.write(0, 0, 'File Name')
@@ -37,6 +40,19 @@ def main(path, savePath):
     QCworksheet.write(0, 10, 'DPM total activity')
     QCworksheet.write(0, 11, 'MDC of removable')
     QCworksheet.write(0, 12, 'Removable DPM')
+
+    # Creaate statistics sheet Headers
+    StatisticSheet.write(0, 0, 'File Name')
+    StatisticSheet.write(0, 1, 'Survey Number')
+    StatisticSheet.write(0, 2, 'Sheet Name')
+    StatisticSheet.write(0, 3, 'Total Activity Min')
+    StatisticSheet.write(0, 4, 'Total Activity Max')
+    StatisticSheet.write(0, 5, 'Total Activity Average')
+    StatisticSheet.write(0, 6, 'Total Activity Standard Deviation')
+    StatisticSheet.write(0, 7, 'Removable Min')
+    StatisticSheet.write(0, 8, 'Removable Max')
+    StatisticSheet.write(0, 9, 'Removable Average')
+    StatisticSheet.write(0, 10, 'Removable Standard Deviation')
 
     def resource_path(relative_path):
         base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.dirname(__file__)))
@@ -121,7 +137,7 @@ def main(path, savePath):
         print("Survey posting")
 
         # find Item Surveyed
-        locationTitleCell = find_cell(currentSheet, "Survey No")
+        locationTitleCell = find_cell(currentSheet, "Item Surveyed")
         if locationTitleCell[2] is None:
             locationTitleCell = find_cell(currentSheet, "Survey Number")
         locationCell = find_title_data(currentSheet, locationTitleCell)
@@ -181,6 +197,7 @@ def main(path, savePath):
     files = getListOfFiles(path)
 
     QCfileRow = 1
+    SecondSheetRow = 1
     # Create Date format to write to xlsx files
     dateFormat = QCworkbook.add_format({'num_format': 'mm/dd/yyyy'})
 
@@ -339,7 +356,7 @@ def main(path, savePath):
             head, tail = os.path.split(file)
             length = len(removableCounts)
             for x in range(0, len(removableCounts)):
-                QCworksheet.write(QCfileRow, 0, tail)                                       # File Name
+                QCworksheet.write(stat, 0, tail)                                       # File Name
                 QCworksheet.write(QCfileRow, 1, titleVals[0].value)                         # Survey Number
                 QCworksheet.write(QCfileRow, 2, dateCell.value, dateFormat)                 # Date
                 QCworksheet.write(QCfileRow, 3, titleVals[1].value)                         # Survey Tech
@@ -354,6 +371,31 @@ def main(path, savePath):
                 QCworksheet.write(QCfileRow, 12, removableCounts[x])                        # Removable DPM
 
                 QCfileRow += 1
+
+            # Find the statistics
+            totalAverage = sum(dpmCounts) / len(dpmCounts)
+            totalMax = max(dpmCounts)
+            totalMin = min(dpmCounts)
+            totalStdDev = statistics.pstdev(dpmCounts)
+
+            removableAvg = sum(removableCounts) / len(removableCounts)
+            removableMax = max(removableCounts)
+            removableMin = min(removableCounts)
+            removableStdDev = statistics.pstdev(removableCounts)
+
+            StatisticSheet.write(SecondSheetRow, 0, tail)                               # File Name
+            StatisticSheet.write(SecondSheetRow, 1, titleVals[0].value)                 # Survey Number
+            StatisticSheet.write(SecondSheetRow, 2, currentSheetString)                 # Current Sheet
+            StatisticSheet.write(SecondSheetRow, 3, totalMin)
+            StatisticSheet.write(SecondSheetRow, 4, totalMax)
+            StatisticSheet.write(SecondSheetRow, 5, totalAverage)
+            StatisticSheet.write(SecondSheetRow, 6, totalStdDev)
+            StatisticSheet.write(SecondSheetRow, 7, removableMin)
+            StatisticSheet.write(SecondSheetRow, 8, removableMax)
+            StatisticSheet.write(SecondSheetRow, 9, removableAvg)
+            StatisticSheet.write(SecondSheetRow, 10, removableStdDev)
+
+            SecondSheetRow += 1
 
         theFile.close()
         theFile.save(file)
@@ -496,6 +538,33 @@ def main(path, savePath):
                 QCworksheet.write(QCfileRow, 12, removableCounts[x])  # Removable DPM
 
                 QCfileRow += 1
+                
+            # Find the statistics
+            totalAverage = sum(dpmCounts) / len(dpmCounts)
+            totalMax = max(dpmCounts)
+            totalMin = min(dpmCounts)
+            totalStdDev = statistics.pstdev(dpmCounts)
+
+            removableAvg = sum(removableCounts) / len(removableCounts)
+            removableMax = max(removableCounts)
+            removableMin = min(removableCounts)
+            removableStdDev = statistics.pstdev(removableCounts)
+
+            StatisticSheet.write(SecondSheetRow, 0, tail)  # File Name
+            StatisticSheet.write(SecondSheetRow, 1, titleVals[0].value)  # Survey Number
+            StatisticSheet.write(SecondSheetRow, 2, currentSheetString)  # Current Sheet
+            StatisticSheet.write(SecondSheetRow, 3, totalMin)
+            StatisticSheet.write(SecondSheetRow, 4, totalMax)
+            StatisticSheet.write(SecondSheetRow, 5, totalAverage)
+            StatisticSheet.write(SecondSheetRow, 6, totalStdDev)
+            StatisticSheet.write(SecondSheetRow, 7, removableMin)
+            StatisticSheet.write(SecondSheetRow, 8, removableMax)
+            StatisticSheet.write(SecondSheetRow, 9, removableAvg)
+            StatisticSheet.write(SecondSheetRow, 10, removableStdDev)
+
+            SecondSheetRow += 1
+
+
 
             dpmCounts.clear()
             removableCounts.clear()
