@@ -356,7 +356,7 @@ def main(path, savePath):
             head, tail = os.path.split(file)
             length = len(removableCounts)
             for x in range(0, len(removableCounts)):
-                QCworksheet.write(stat, 0, tail)                                       # File Name
+                QCworksheet.write(QCfileRow, 0, tail)                                       # File Name
                 QCworksheet.write(QCfileRow, 1, titleVals[0].value)                         # Survey Number
                 QCworksheet.write(QCfileRow, 2, dateCell.value, dateFormat)                 # Date
                 QCworksheet.write(QCfileRow, 3, titleVals[1].value)                         # Survey Tech
