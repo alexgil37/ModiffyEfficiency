@@ -3,7 +3,6 @@ import re
 import os
 import sys
 import xlsxwriter
-import numpy
 import statistics
 from pycel import ExcelCompiler
 
@@ -424,9 +423,10 @@ def main(path, savePath):
             # If it is a map sheet skip
             currentSheetString = str(currentSheet)
             currentSheetString = currentSheetString[12:]
+            sheetName = currentSheetString[:-3]
             checkBlankString = currentSheetString[0:5]
             currentSheetString = currentSheetString[0:3]
-            if currentSheetString == "Map" or checkBlankString == "Blank":
+            if currentSheetString == "Map" or checkBlankString == "Blank" or sheetName == "Scan SDS":
                 continue
 
             betaRow, betaCol = check_for_BettaGamma2(3)
