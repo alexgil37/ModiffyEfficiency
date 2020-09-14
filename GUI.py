@@ -33,7 +33,7 @@ def default_path():
 def save_path():
     curr_directory = os.getcwd()
     filename = filedialog.askdirectory(initialdir=curr_directory, title="Select Folder")
-    curr_directory = os.path.join(filename, "Output.csv")
+    curr_directory = os.path.join(filename)
     savePath.set(curr_directory)
 
 
