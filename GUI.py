@@ -117,11 +117,9 @@ button3.place(x=161, y=95)
 airSampleButt = tk.Button(root, text="Air Samples",  command=dummyAirSamples)
 airSampleButt.place(x=35, y=170)
 button3 = tk.Button(root, text="Survey",  command=dummy5)
-button3.place(x=130, y=170)
+button3.place(x=150, y=170)
 airSampleChartButt = tk.Button(root, text="Air Samples Charts",  command=dummyAirSamplesCharts)
-airSampleChartButt.place(x=20, y=230)
-button3 = tk.Button(root, text="FSS",  command=dummy5)
-button3.place(x=200, y=170)
+airSampleChartButt.place(x=35, y=230)
 
 
 root.mainloop()
