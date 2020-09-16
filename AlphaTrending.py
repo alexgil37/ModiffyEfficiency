@@ -8,10 +8,14 @@ from pycel import ExcelCompiler
 
 
 def main(path, savePath):
-    dpmCounts = list()
-    MDCCounts = list()
+    grossTotalCounts = list()
+    backgroundCounts = list()
     removableCounts = list()
     invalidSheets = list()
+    netCPMRem = list()
+    netActRem = list()
+    netActTotal = list()
+    netCPMTotal = list()
     badfile = list()
 
     # Create the output folder
@@ -35,10 +39,13 @@ def main(path, savePath):
     QCworksheet.write(0, 6, 'Survey Type')
     QCworksheet.write(0, 7, 'Level of Posting')
     QCworksheet.write(0, 8, 'Item Surveyed')
-    QCworksheet.write(0, 9, 'MDC of total Activity')
-    QCworksheet.write(0, 10, 'DPM total activity')
-    QCworksheet.write(0, 11, 'MDC of removable')
-    QCworksheet.write(0, 12, 'Removable DPM')
+    QCworksheet.write(0, 9, 'Total Activity Instrument Efficiency')
+    QCworksheet.write(0, 10, 'Gross counts of total Activity')
+    QCworksheet.write(0, 11, 'Background counts of total activity')
+    QCworksheet.write(0, 12, 'Net Activity of total Activity')
+    QCworksheet.write(0, 13, 'Removable Instrument Efficiency')
+    QCworksheet.write(0, 14, 'Gross Counts of Removable')
+    QCworksheet.write(0, 15, 'Net Activity of Removable')
 
     # Creaate statistics sheet Headers
     StatisticSheet.write(0, 0, 'File Name')
@@ -191,6 +198,30 @@ def main(path, savePath):
 
         return [None, None]
 
+    def find_newer_efficiency():
+        for row in range(1, 30):
+            for column in "GHIJKLMNOPQRSTUVWXYZ":  # Here you can add or reduce the columns
+                modelCell = "{}{}".format(column, row)
+                if currentSheet[modelCell].value == "Instrument totalEfficiency":
+                    effCol = chr(ord(column) + 3)
+                    effCell = currentSheet[effCol + row]
+
+                    # In case it is 3 cells merged instead of 2
+                    if type(effCell).__name__ == 'MergedCell':
+                        effCol = chr(ord(column) + 4)
+                        effCell = currentSheet[effCol + row].value
+
+        return effCell
+
+    def checkForMap():
+        for row in range(1, 10):
+            for column in "ABCDEFGHIJ":
+                modelCell = "{}{}".format(column, row)
+                if currentSheet[modelCell].value != None:
+                    return False
+
+        return True
+
     files = getListOfFiles(path)
 
     QCfileRow = 1
@@ -199,8 +230,11 @@ def main(path, savePath):
     dateFormat = QCworkbook.add_format({'num_format': 'mm/dd/yyyy'})
 
     for file in files:
+
         # For Openpyxl
+        print("test")
         theFile = openpyxl.load_workbook(file)
+        print("test done")
         allSheetNames = theFile.sheetnames
         print(file)
         print("All sheet names {} ".format(theFile.sheetnames))
@@ -234,10 +268,14 @@ def main(path, savePath):
 
             # Find MDC Value and DPM for total activity as well as Removable DPM
             else:
+                backgroundCounts.clear()
+                grossTotalCounts.clear()
+                removableCounts.clear()
+
                 removableBetaRow, removableBetaCol = check_for_BettaGamma(4)
-                MDCcol = chr(ord(betaCol) + 2)
-                DPMcol = chr(ord(betaCol) + 4)
-                removableDPMcol = chr(ord(removableBetaCol) + 2)
+                countsCol = betaCol
+                backgroundCol = chr(ord(betaCol) + 1)
+                removableCountsCol = removableBetaCol
 
                 n = 1
                 # Go until it is not None
@@ -246,8 +284,9 @@ def main(path, savePath):
 
                 # There will always be at most 20 counts per survey
                 for cell in range(n + 1, n + 21):
-                    cellValue = currentSheet[betaCol + str(betaRow + cell)].value
-                    removableValue = currentSheet[removableBetaCol + str(removableBetaRow + cell)].value
+                    cellValue = currentSheet[countsCol + str(betaRow + cell)].value
+                    backgroundValue = currentSheet[backgroundCol + str(betaRow + cell)].value
+                    removableValue = currentSheet[removableCountsCol + str(removableBetaRow + cell)].value
 
                     # If there is nothing in both removable and total activity
                     if cellValue is None and removableValue is None:
@@ -255,32 +294,39 @@ def main(path, savePath):
 
                     # If there is removable but no total activity
                     elif cellValue is None and removableValue is not None:
-                        removableDPMcell = removableDPMcol + str(betaRow + cell)
-                        MDCCounts.append(None)
-                        dpmCounts.append(None)
-                        removableCounts.append(removableDPMcell)
+                        backgroundCounts.append(None)
+                        grossTotalCounts.append(None)
+                        removableCounts.append(removableValue)
 
                     # If there is total activity but no removable
                     elif cellValue is not None and removableValue is None:
-                        MDCcell = MDCcol + str(betaRow + cell)
-                        DPMcell = DPMcol + str(betaRow + cell)
-                        MDCCounts.append(MDCcell)
-                        dpmCounts.append(DPMcell)
+                        backgroundCounts.append(backgroundValue)
+                        grossTotalCounts.append(cellValue)
                         removableCounts.append(None)
 
                     # If there is both removable and total activity
                     else:
-                        MDCcell = MDCcol + str(betaRow + cell)
-                        DPMcell = DPMcol + str(betaRow + cell)
-                        removableDPMcell = removableDPMcol + str(betaRow + cell)
-                        MDCCounts.append(MDCcell)
-                        dpmCounts.append(DPMcell)
-                        removableCounts.append(removableDPMcell)
+                        backgroundCounts.append(backgroundValue)
+                        grossTotalCounts.append(cellValue)
+                        removableCounts.append(removableValue)
 
                     index += 1
 
             if needToContinue is True:
                 continue
+
+            # Find totalEfficiency
+            efficiencyRow, efficiencyCol = check_for_BettaGamma(1)
+            efficiencyRow = efficiencyRow + 4
+            totalEfficiency = currentSheet[efficiencyCol + str(efficiencyRow)].value
+
+            ttemp, efficiencyCol = check_for_BettaGamma(2)
+            remEfficiency = currentSheet[efficiencyCol + str(efficiencyRow)].value
+
+            # Find Removable Background
+            efficiencyRow, efficiencyCol = check_for_BettaGamma(2)
+            efficiencyRow = efficiencyRow + 8
+            bkgRem = currentSheet[efficiencyCol + str(efficiencyRow)].value
 
             # ***********Find Title Data**********
             titleVals = find_title_vals(currentSheet)
@@ -305,47 +351,30 @@ def main(path, savePath):
             currentSheetString = currentSheetString[12:]
             currentSheetString = currentSheetString[:-2]
 
-            # PyCel
-            # Find the values of mdc and dpm
-            for x in range(0, len(removableCounts)):
-                print("The file " + str(file))
-                print("The Sheet " + currentSheetString)
-                print("MDCCounts " + str(MDCCounts[x]))
-                ttest = 0
+            netCPMRem.clear()
+            netActRem.clear()
+            netActTotal.clear()
+            netCPMTotal.clear()
 
-                if dpmCounts[x] is not None:
-                    netCPM = dpmCounts[x]
-                    netCol = chr(ord(netCPM[0]) - 1)
-                    netRow = netCPM[1:]
-                    netCPM = netCol + netRow
+            # Find DPMs
+            for i in range(0, len(removableCounts)):
 
-                    remove_isblank(currentSheet, str(MDCCounts[x]))
-                    remove_isblank(currentSheet, netCPM)
-                    remove_isblank(currentSheet, str(dpmCounts[x]))
-                    theFile.save(file)
-                    excel = ExcelCompiler(filename=file)
-                    tempCell = currentSheetString + "!" + str(MDCCounts[x])
-                    print(tempCell)
-                    MDCCounts[x] = excel.evaluate(tempCell)
-                    tempCell = currentSheetString + "!" + str(dpmCounts[x])
-                    print(tempCell)
-                    dpmCounts[x] = excel.evaluate(tempCell)
-                    ttest += 1
+                if (removableCounts[i] is None):
+                    netCPMRem.append(None)
+                    netActRem.append(None)
+                else:
+                    netCPMRem.append(removableCounts[i] - (bkgRem / 60))
+                    netActRem.append(netCPMRem[i] / remEfficiency)
 
-                if removableCounts[x] is not None:
-                    if ttest > 0:
-                        ttest = ttest
-                    netCPM = removableCounts[x]
-                    netCol = chr(ord(netCPM[0]) - 1)
-                    netRow = netCPM[1:]
-                    netCPM = netCol + netRow
+            # total activity calculations
 
-                    remove_isblank(currentSheet, netCPM)
-                    remove_isblank(currentSheet, str(removableCounts[x]))
-                    theFile.save(file)
-                    excel = ExcelCompiler(filename=file)
-                    tempCell = currentSheetString + "!" + str(removableCounts[x])
-                    removableCounts[x] = excel.evaluate(tempCell)
+            for i in range(0, len(grossTotalCounts)):
+                if (grossTotalCounts[i] is None):
+                    netCPMTotal.append(None)
+                    netActTotal.append(None)
+                else:
+                    netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i] / 60))
+                    netActTotal.append(netCPMTotal[i] / totalEfficiency)
 
             # Write the results to the QC file
             # Write the current Worksheet
@@ -361,29 +390,42 @@ def main(path, savePath):
                 QCworksheet.write(QCfileRow, 6, titleVals[3].value)  # Survey Type
                 QCworksheet.write(QCfileRow, 7, titleVals[4].value)  # Level of Posting
                 QCworksheet.write(QCfileRow, 8, titleVals[5].value)  # Item Surveyed
-                QCworksheet.write(QCfileRow, 9, MDCCounts[x])  # MDC of total Activity
-                QCworksheet.write(QCfileRow, 10, dpmCounts[x])  # DPM total activity
-                QCworksheet.write(QCfileRow, 11, "MDCremovableCounts[x]")  # MDC of removable
-                QCworksheet.write(QCfileRow, 12, removableCounts[x])  # Removable DPM
+                QCworksheet.write(QCfileRow, 9, totalEfficiency)  # totalEfficiency
+                QCworksheet.write(QCfileRow, 10, grossTotalCounts[x])  # Gross Counts Total
+                QCworksheet.write(QCfileRow, 11, backgroundCounts[x])  # Background total activity
+                QCworksheet.write(QCfileRow, 12, netActTotal[x])  # DPM total activity
+                QCworksheet.write(QCfileRow, 13, remEfficiency)  # Removable instrument Efficeincy
+                QCworksheet.write(QCfileRow, 14, removableCounts[x])  # Gross removable Counts
+                QCworksheet.write(QCfileRow, 15, netActRem[x])  # Removable DPM
 
                 QCfileRow += 1
 
             # Find the statistics
-            grossTotalCounts = list(filter(None, grossTotalCounts))
-            removableCounts = list(filter(None, removableCounts))
+            netActTotal = list(filter(None, netActTotal))
+            netActRem = list(filter(None, netActRem))
 
-            if len(grossTotalCounts) == 0 or len(removableCounts) == 0:
-                continue
 
-            totalAverage = sum(dpmCounts) / len(dpmCounts)
-            totalMax = max(dpmCounts)
-            totalMin = min(dpmCounts)
-            totalStdDev = statistics.pstdev(dpmCounts)
+            if len(netActTotal) != 0:
+                totalAverage = sum(netActTotal) / len(netActTotal)
+                totalMax = max(netActTotal)
+                totalMin = min(netActTotal)
+                totalStdDev = statistics.pstdev(netActTotal)
+            else:
+                totalAverage = None
+                totalMax = None
+                totalMin = None
+                totalStdDev = None
 
-            removableAvg = sum(removableCounts) / len(removableCounts)
-            removableMax = max(removableCounts)
-            removableMin = min(removableCounts)
-            removableStdDev = statistics.pstdev(removableCounts)
+            if len(netActRem) != 0:
+                removableAvg = sum(netActRem) / len(netActRem)
+                removableMax = max(netActRem)
+                removableMin = min(netActRem)
+                removableStdDev = statistics.pstdev(netActRem)
+            else:
+                removableAvg = None
+                removableMax = None
+                removableMin = None
+                removableStdDev = None
 
             StatisticSheet.write(SecondSheetRow, 0, tail)  # File Name
             StatisticSheet.write(SecondSheetRow, 1, titleVals[0].value)  # Survey Number
@@ -400,17 +442,13 @@ def main(path, savePath):
             SecondSheetRow += 1
 
         theFile.close()
-        theFile.save(file)
-        MDCCounts.clear()
-        dpmCounts.clear()
-        removableCounts.clear()
 
     """redo but for the other list"""
     print("IN THE INVALID BETA ")
-    del dpmCounts
-    del MDCCounts
+    del grossTotalCounts
+    del backgroundCounts
     del removableCounts
-    dpmCounts = list()
+    grossTotalCounts = list()
     removableCounts = list()
 
     for file in invalidSheets:
@@ -435,14 +473,17 @@ def main(path, savePath):
             if betaRow is not None or betaCol is not None:
                 continue
 
+            if checkForMap():
+                continue
+
+
             else:
                 betaRow, betaCol = check_for_BettaGamma(1)
                 removableBetaRow, removableBetaCol = check_for_BettaGamma(2)
-                DPMcol = chr(ord(betaCol) + 1)
-                removableDPMcol = chr(ord(removableBetaCol) + 1)
 
                 n = 1
                 # Go until it is not None
+                test = currentSheet[betaCol + str(betaRow + n)].value
                 while currentSheet[betaCol + str(betaRow + n)].value != "gross counts":
                     print(currentSheet[betaCol + str(betaRow + n)].value)
                     n += 1
@@ -458,26 +499,39 @@ def main(path, savePath):
 
                     # If there is removable but no total activity
                     elif cellValue is None and removableValue is not None:
-                        removableDPMcell = removableDPMcol + str(betaRow + cell)
-                        dpmCounts.append(None)
-                        removableCounts.append(removableDPMcell)
+                        grossTotalCounts.append(None)
+                        removableCounts.append(removableValue)
 
                     # If there is total activity but no removable
                     elif cellValue is not None and removableValue is None:
-                        DPMcell = DPMcol + str(betaRow + cell)
-                        dpmCounts.append(DPMcell)
+                        grossTotalCounts.append(cellValue)
                         removableCounts.append(None)
 
                     # If there is both removable and total activity
                     else:
-                        DPMcell = DPMcol + str(betaRow + cell)
-                        removableDPMcell = removableDPMcol + str(betaRow + cell)
-                        dpmCounts.append(DPMcell)
-                        removableCounts.append(removableDPMcell)
+                        grossTotalCounts.append(cellValue)
+                        removableCounts.append(removableValue)
 
                     index += 1
 
                 test = 1
+
+            # Find efficiency
+            efficiencyRow, efficiencyCol = check_for_BettaGamma(1)
+            efficiencyRow = efficiencyRow + 4
+            totalEfficiency = currentSheet[efficiencyCol + str(efficiencyRow)].value
+
+            ttemp, efficiencyCol = check_for_BettaGamma(2)
+            remEfficiency = currentSheet[efficiencyCol + str(efficiencyRow)].value
+
+            # Find Background
+            efficiencyRow, efficiencyCol = check_for_BettaGamma(2)
+            efficiencyRow = efficiencyRow + 5
+            bkgRem = currentSheet[efficiencyCol + str(efficiencyRow)].value
+
+            efficiencyRow, efficiencyCol = check_for_BettaGamma(1)
+            efficiencyRow = efficiencyRow + 5
+            bkgTotal = currentSheet[efficiencyCol + str(efficiencyRow)].value
 
             # ***********Find Title Data**********
             titleVals = find_title_vals(currentSheet)
@@ -503,24 +557,32 @@ def main(path, savePath):
 
             if currentSheet == "2360-190602 (2)":
                 ("on second sprintheet")
-            # Pycel
-            # Find the values of mdc and dpm
-            print(dpmCounts)
-            for x in range(0, len(removableCounts)):
 
-                if dpmCounts[x] is not None:
-                    remove_isblank(currentSheet, str(dpmCounts[x]))
-                    theFile.save(file)
-                    excel = ExcelCompiler(filename=file)
-                    tempCell = currentSheetString + "!" + str(dpmCounts[x])
-                    dpmCounts[x] = excel.evaluate(tempCell)
+            netCPMRem.clear()
+            netActRem.clear()
+            netActTotal.clear()
+            netCPMTotal.clear()
 
-                if removableCounts[x] is not None:
-                    remove_isblank(currentSheet, str(removableCounts[x]))
-                    theFile.save(file)
-                    excel = ExcelCompiler(filename=file)
-                    tempCell = currentSheetString + "!" + str(removableCounts[x])
-                    removableCounts[x] = excel.evaluate(tempCell)
+            # Find DPMs
+            for i in range(0, len(removableCounts)):
+
+                if (removableCounts[i] is None):
+                    netCPMRem.append(None)
+                    netActRem.append(None)
+                else:
+                    netCPMRem.append(removableCounts[i] - (bkgRem / 60))
+                    netActRem.append(netCPMRem[i] / remEfficiency)
+
+            # total activity calculations
+
+            for i in range(0, len(grossTotalCounts)):
+                if (grossTotalCounts[i] is None):
+                    netCPMTotal.append(None)
+                    netActTotal.append(None)
+                else:
+                    netCPMTotal.append(grossTotalCounts[i] - (bkgTotal / 60))
+                    netActTotal.append(netCPMTotal[i] / totalEfficiency)
+
 
             print("Adding data to file.")
             head, tail = os.path.split(file)
@@ -534,10 +596,13 @@ def main(path, savePath):
                 QCworksheet.write(QCfileRow, 6, titleVals[3].value)  # Survey Type
                 QCworksheet.write(QCfileRow, 7, titleVals[4].value)  # Level of Posting
                 QCworksheet.write(QCfileRow, 8, titleVals[5].value)  # Item Surveyed
-                QCworksheet.write(QCfileRow, 9, "MDCCounts[x]")  # MDC of total Activity
-                QCworksheet.write(QCfileRow, 10, dpmCounts[x])  # DPM total activity
-                QCworksheet.write(QCfileRow, 11, "MDCremovableCounts[x]")  # MDC of removable
-                QCworksheet.write(QCfileRow, 12, removableCounts[x])  # Removable DPM
+                QCworksheet.write(QCfileRow, 9, totalEfficiency)  # totalEfficiency
+                QCworksheet.write(QCfileRow, 10, grossTotalCounts[x])  # Gross Counts Total
+                QCworksheet.write(QCfileRow, 11, bkgTotal)  # Background total activity
+                QCworksheet.write(QCfileRow, 12, netActTotal[x])  # DPM total activity
+                QCworksheet.write(QCfileRow, 13, remEfficiency)  # Removable instrument Efficeincy
+                QCworksheet.write(QCfileRow, 14, removableCounts[x])  # Gross removable Counts
+                QCworksheet.write(QCfileRow, 15, netActRem[x])  # Removable DPM
 
                 QCfileRow += 1
 
@@ -548,10 +613,10 @@ def main(path, savePath):
             if len(grossTotalCounts) == 0 or len(removableCounts) == 0:
                 continue
 
-            totalAverage = sum(dpmCounts) / len(dpmCounts)
-            totalMax = max(dpmCounts)
-            totalMin = min(dpmCounts)
-            totalStdDev = statistics.pstdev(dpmCounts)
+            totalAverage = sum(grossTotalCounts) / len(grossTotalCounts)
+            totalMax = max(grossTotalCounts)
+            totalMin = min(grossTotalCounts)
+            totalStdDev = statistics.pstdev(grossTotalCounts)
 
             removableAvg = sum(removableCounts) / len(removableCounts)
             removableMax = max(removableCounts)
@@ -572,12 +637,12 @@ def main(path, savePath):
 
             SecondSheetRow += 1
 
-            dpmCounts.clear()
+            grossTotalCounts.clear()
             removableCounts.clear()
 
         theFile.close()
         theFile.save(file)
-        dpmCounts.clear()
+        grossTotalCounts.clear()
         removableCounts.clear()
 
     QCworkbook.close()
