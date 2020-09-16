@@ -4,6 +4,7 @@ from FindRemovableData import main as main3
 from totalActivity import main as main4
 from AirSampleData import main as mainAirSamples
 from SurveyTrending import main as main5
+from AlphaTrending import main as mainAlpha
 from AirSampleCharts import main as mainAirSamplesCharts
 import os
 import tkinter as tk
@@ -68,6 +69,11 @@ def dummyAirSamples():
 
 def dummy5():
     main5(path.get(), savePath.get())
+    completed_popup()
+
+def dummyAlpha():
+    mainAlpha(path.get(), savePath.get())
+    completed_popup()
 
 def dummyAirSamplesCharts():
     mainAirSamplesCharts(path.get(), savePath.get())
@@ -118,6 +124,8 @@ airSampleButt = tk.Button(root, text="Air Samples",  command=dummyAirSamples)
 airSampleButt.place(x=35, y=170)
 button3 = tk.Button(root, text="Survey",  command=dummy5)
 button3.place(x=150, y=170)
+button3 = tk.Button(root, text="Alpha",  command=dummy5)
+button3.place(x=250, y=170)
 airSampleChartButt = tk.Button(root, text="Air Samples Charts",  command=dummyAirSamplesCharts)
 airSampleChartButt.place(x=35, y=230)
 
