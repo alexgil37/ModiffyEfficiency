@@ -27,7 +27,7 @@ def main(path, savePath):
     print(path)
 
     # create excel QC file
-    QCworkbook = xlsxwriter.Workbook(savePath + '\\' + 'BetaGammaTrending.xlsx')
+    QCworkbook = xlsxwriter.Workbook(savePath + '\\' + 'FSS_Trending.xlsx')
     QCworksheet = QCworkbook.add_worksheet()
     StatisticSheet = QCworkbook.add_worksheet()
 
@@ -38,16 +38,15 @@ def main(path, savePath):
     QCworksheet.write(0, 3, 'Survey Tech')
     QCworksheet.write(0, 4, 'Count room Tech')
     QCworksheet.write(0, 5, 'Date of Count Room')
-    QCworksheet.write(0, 6, 'Survey Type')
-    QCworksheet.write(0, 7, 'Level of Posting')
-    QCworksheet.write(0, 8, 'Item Surveyed')
-    QCworksheet.write(0, 9, 'Total Activity Instrument Efficiency')
-    QCworksheet.write(0, 10, 'Gross counts of Total Activity')
-    QCworksheet.write(0, 11, 'Background counts of Total activity')
-    QCworksheet.write(0, 12, 'Net Activity of Total Activity')
-    QCworksheet.write(0, 13, 'Removable Instrument Efficiency')
-    QCworksheet.write(0, 14, 'Gross Counts of Removable')
-    QCworksheet.write(0, 15, 'Net Activity of Removable')
+    QCworksheet.write(0, 6, 'Survey Unit')
+    QCworksheet.write(0, 7, 'Item Surveyed')
+    QCworksheet.write(0, 8, 'Total Activity Instrument Efficiency')
+    QCworksheet.write(0, 9, 'Gross counts of Total Activity')
+    QCworksheet.write(0, 10, 'Background counts of Total activity')
+    QCworksheet.write(0, 11, 'Net Activity of Total Activity')
+    QCworksheet.write(0, 12, 'Removable Instrument Efficiency')
+    QCworksheet.write(0, 13, 'Gross Counts of Removable')
+    QCworksheet.write(0, 14, 'Net Activity of Removable')
 
     # Create statistics sheet Headers
     StatisticSheet.write(0, 0, 'File Name')
@@ -61,12 +60,13 @@ def main(path, savePath):
     StatisticSheet.write(0, 8, 'Removable Max')
     StatisticSheet.write(0, 9, 'Removable Average')
     StatisticSheet.write(0, 10, 'Removable Standard Deviation')
+
     StatisticSheet.write(0, 13, 'Overall Total Activity  Minimum')
     StatisticSheet.write(0, 14, 'Overall Total Activity Maximum')
     StatisticSheet.write(0, 15, 'Overall Total Activity Average')
-    StatisticSheet.write(0, 17, 'Overall Total Activity Standard Deviation')
-    StatisticSheet.write(0, 18, 'Overall Removable Minimum')
-    StatisticSheet.write(0, 19, 'Overall Removable Maximum')
+    StatisticSheet.write(0, 16, 'Overall Total Activity Standard Deviation')
+    StatisticSheet.write(0, 17, 'Overall Removable Minimum')
+    StatisticSheet.write(0, 18, 'Overall Removable Maximum')
     StatisticSheet.write(0, 20, 'Overall Removable Average')
     StatisticSheet.write(0, 21, 'Overall Removable Standard Deviation')
 
@@ -94,7 +94,6 @@ def main(path, savePath):
             for column in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":  # Here you can add or reduce the columns
 
                 cell = "{}{}".format(column, row)
-                cellValue = currentSheet[cell].value
 
                 if currentSheet[cell].value == parameterToFind:
                     print("the row is {0} and the column {1}".format(row, column))
@@ -141,16 +140,9 @@ def main(path, savePath):
         print("Survey count tech")
 
         # find type
-        typeTitleCell = find_cell(currentSheet, "Survey Type")
+        typeTitleCell = find_cell(currentSheet, "Survey Unit")
         typeCell = find_title_data(currentSheet, typeTitleCell)
-        print("Survey type")
-
-        # find Level of Posting
-        postTitleCell = find_cell(currentSheet, "Level Of Posting")
-        if postTitleCell[2] is None:
-            postTitleCell = find_cell(currentSheet, "Level of Posting")
-        postingCell = find_title_data(currentSheet, postTitleCell)
-        print("Survey posting")
+        print("Survey Unit")
 
         # find Item Surveyed
         locationTitleCell = find_cell(currentSheet, "Item Surveyed")
@@ -159,7 +151,7 @@ def main(path, savePath):
         locationCell = find_title_data(currentSheet, locationTitleCell)
         print("Survey Item")
 
-        return [sampleIdCell, surveyTechCell, countRoomTechCell, typeCell, postingCell, locationCell]
+        return [sampleIdCell, surveyTechCell, countRoomTechCell, typeCell, locationCell]
 
     def find_title_data(currentSheet, titleCell):
         row = int(titleCell[0])
@@ -192,36 +184,6 @@ def main(path, savePath):
                     return [row, column]
 
         return [None, None]
-
-    def check_for_BettaGamma2(num):
-        found = 0
-        for row in range(1, 30):
-            for column in "GHIJKLMNOPQRSTUVWXYZ":
-
-                modelVal = currentSheet[column + str(row)].value
-                if modelVal != "Beta-Gamma":
-                    continue
-
-                found += 1
-                if found == num:
-                    return [row, column]
-
-        return [None, None]
-
-    def find_newer_efficiency():
-        for row in range(1, 30):
-            for column in "GHIJKLMNOPQRSTUVWXYZ":  # Here you can add or reduce the columns
-                modelCell = "{}{}".format(column, row)
-                if currentSheet[modelCell].value == "Instrument totalEfficiency":
-                    effCol = chr(ord(column) + 3)
-                    effCell = currentSheet[effCol + row]
-
-                    # In case it is 3 cells merged instead of 2
-                    if type(effCell).__name__ == 'MergedCell':
-                        effCol = chr(ord(column) + 4)
-                        effCell = currentSheet[effCol + row].value
-
-        return effCell
 
     def checkForMap():
         for row in range(1, 10):
@@ -401,7 +363,7 @@ def main(path, savePath):
                     netActTotal.append(None)
 
                 elif type(bkgRem) != str:
-                    netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i] / 60))
+                    netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i]))
                     netActTotal.append(netCPMTotal[i] / totalEfficiency)
 
                 else:
@@ -432,21 +394,20 @@ def main(path, savePath):
                 QCworksheet.write(QCfileRow, 3, titleVals[1].value)  # Survey Tech
                 QCworksheet.write(QCfileRow, 4, titleVals[2].value)  # Count room Tech
                 QCworksheet.write(QCfileRow, 5, secondDateCell.value, dateFormat)  # Date of Count Room
-                QCworksheet.write(QCfileRow, 6, titleVals[3].value)  # Survey Type
-                QCworksheet.write(QCfileRow, 7, titleVals[4].value)  # Level of Posting
-                QCworksheet.write(QCfileRow, 8, titleVals[5].value)  # Item Surveyed
-                QCworksheet.write(QCfileRow, 9, totalEfficiency)  # totalEfficiency
-                QCworksheet.write(QCfileRow, 10, grossTotalCounts[i])  # Gross Counts Total
-                QCworksheet.write(QCfileRow, 11, backgroundCounts[i])  # Background total activity
-                QCworksheet.write(QCfileRow, 12, netActTotal[i])  # DPM total activity
-                QCworksheet.write(QCfileRow, 13, remEfficiency)  # Removable instrument Efficeincy
-                QCworksheet.write(QCfileRow, 14, removableCounts[i])  # Gross removable Counts
-                QCworksheet.write(QCfileRow, 15, netActRem[i])  # Removable DPM
+                QCworksheet.write(QCfileRow, 6, titleVals[3].value)  # Survey Unit
+                QCworksheet.write(QCfileRow, 7, titleVals[4].value)  # Item Surveyed
+                QCworksheet.write(QCfileRow, 8, totalEfficiency)  # totalEfficiency
+                QCworksheet.write(QCfileRow, 9, grossTotalCounts[i])  # Gross Counts Total
+                QCworksheet.write(QCfileRow, 10, backgroundCounts[i])  # Background total activity
+                QCworksheet.write(QCfileRow, 11, netActTotal[i])  # DPM total activity
+                QCworksheet.write(QCfileRow, 12, remEfficiency)  # Removable instrument Efficeincy
+                QCworksheet.write(QCfileRow, 13, removableCounts[i])  # Gross removable Counts
+                QCworksheet.write(QCfileRow, 14, netActRem[i])  # Removable DPM
 
                 QCfileRow += 1
 
-            allNetAct.append(netActTotal)
-            allRemAct.append(netActRem)
+            allNetAct.extend(netActTotal)
+            allRemAct.extend(netActRem)
 
             # Find the statistics
             netActTotal = list(filter(None, netActTotal))
@@ -516,14 +477,14 @@ def main(path, savePath):
             if currentSheetString == "Map" or checkBlankString == "Blank":
                 continue
 
-            betaRow, betaCol = check_for_BettaGamma2(3)
+            betaRow, betaCol = check_for_BettaGamma(3)
             if betaRow is not None or betaCol is not None:
                 continue
 
             if checkForMap():
                 continue
 
-            betaRow, betaCol = check_for_BettaGamma2(1)
+            betaRow, betaCol = check_for_BettaGamma(1)
             if betaRow is None or betaCol is None:
                 continue
 
@@ -531,38 +492,26 @@ def main(path, savePath):
                 grossTotalCounts.clear()
                 removableCounts.clear()
 
-                betaRow, betaCol = check_for_BettaGamma(1)
-                removableBetaRow, removableBetaCol = check_for_BettaGamma(2)
+                betaRow, betaCol = check_for_BettaGamma(2)
 
                 n = 1
                 # Go until it is not None
-                while currentSheet[betaCol + str(betaRow + n)].value != "gross counts":
+                while currentSheet[betaCol + str(betaRow + n)].value != "Ambient Bkg":
+                    print("currentsheet")
                     print(currentSheet[betaCol + str(betaRow + n)].value)
                     n += 1
 
                 # There will always be at most 20 counts per survey
                 for cell in range(n + 1, n + 21):
                     cellValue = currentSheet[betaCol + str(betaRow + cell)].value
-                    removableValue = currentSheet[removableBetaCol + str(removableBetaRow + cell)].value
 
-                    # If there is nothing in both removable and total activity
-                    if cellValue is None and removableValue is None:
+                    # If there is nothing in total activity
+                    if cellValue is None:
                         continue
 
-                    # If there is removable but no total activity
-                    elif cellValue is None and removableValue is not None:
-                        grossTotalCounts.append(None)
-                        removableCounts.append(removableValue)
-
-                    # If there is total activity but no removable
-                    elif cellValue is not None and removableValue is None:
-                        grossTotalCounts.append(cellValue)
-                        removableCounts.append(None)
-
-                    # If there is both removable and total activity
+                    # If there is total activity
                     else:
                         grossTotalCounts.append(cellValue)
-                        removableCounts.append(removableValue)
 
                     index += 1
 
@@ -571,14 +520,10 @@ def main(path, savePath):
             efficiencyRow += 4
             totalEfficiency = currentSheet[efficiencyCol + str(efficiencyRow)].value
 
-            ttemp, efficiencyCol = check_for_BettaGamma(2)
-            remEfficiency = currentSheet[efficiencyCol + str(efficiencyRow)].value
+            # ttemp, efficiencyCol = check_for_BettaGamma(2)
+            # remEfficiency = currentSheet[efficiencyCol + str(efficiencyRow)].value
 
             # Find Background
-            efficiencyRow, efficiencyCol = check_for_BettaGamma(2)
-            efficiencyRow += 5
-            bkgRem = currentSheet[efficiencyCol + str(efficiencyRow)].value
-
             efficiencyRow, efficiencyCol = check_for_BettaGamma(1)
             efficiencyRow += 5
             bkgTotal = currentSheet[efficiencyCol + str(efficiencyRow)].value
@@ -605,29 +550,16 @@ def main(path, savePath):
             currentSheetString = currentSheetString[12:]
             currentSheetString = currentSheetString[:-2]
 
-            netCPMRem.clear()
-            netActRem.clear()
             netActTotal.clear()
             netCPMTotal.clear()
 
             # Find DPMs
-            for i in range(0, len(removableCounts)):
-
-                if removableCounts[i] is None:
-                    netCPMRem.append(None)
-                    netActRem.append(None)
-                else:
-                    netCPMRem.append(removableCounts[i] - (bkgRem / 60))
-                    netActRem.append(netCPMRem[i] / remEfficiency)
-
-            # total activity calculations
-
             for i in range(0, len(grossTotalCounts)):
                 if grossTotalCounts[i] is None:
                     netCPMTotal.append(None)
                     netActTotal.append(None)
                 else:
-                    netCPMTotal.append(grossTotalCounts[i] - (bkgTotal / 60))
+                    netCPMTotal.append(grossTotalCounts[i] - (bkgTotal))
                     netActTotal.append(netCPMTotal[i] / totalEfficiency)
 
             print("Adding data to file.")
@@ -639,38 +571,31 @@ def main(path, savePath):
                 QCworksheet.write(QCfileRow, 3, titleVals[1].value)  # Survey Tech
                 QCworksheet.write(QCfileRow, 4, titleVals[2].value)  # Count room Tech
                 QCworksheet.write(QCfileRow, 5, secondDateCell.value, dateFormat)  # Date of Count Room
-                QCworksheet.write(QCfileRow, 6, titleVals[3].value)  # Survey Type
-                QCworksheet.write(QCfileRow, 7, titleVals[4].value)  # Level of Posting
-                QCworksheet.write(QCfileRow, 8, titleVals[5].value)  # Item Surveyed
-                QCworksheet.write(QCfileRow, 9, totalEfficiency)  # totalEfficiency
-                QCworksheet.write(QCfileRow, 10, grossTotalCounts[i])  # Gross Counts Total
-                QCworksheet.write(QCfileRow, 11, bkgTotal)  # Background total activity
-                QCworksheet.write(QCfileRow, 12, netActTotal[i])  # DPM total activity
-                QCworksheet.write(QCfileRow, 13, remEfficiency)  # Removable instrument Efficeincy
-                QCworksheet.write(QCfileRow, 14, removableCounts[i])  # Gross removable Counts
-                QCworksheet.write(QCfileRow, 15, netActRem[i])  # Removable DPM
+                QCworksheet.write(QCfileRow, 6, titleVals[3].value)  # Survey Unit
+                QCworksheet.write(QCfileRow, 7, titleVals[4].value)  # Item Surveyed
+                QCworksheet.write(QCfileRow, 8, totalEfficiency)  # totalEfficiency
+                QCworksheet.write(QCfileRow, 9, grossTotalCounts[i])  # Gross Counts Total
+                QCworksheet.write(QCfileRow, 10, bkgTotal)  # Background total activity
+                QCworksheet.write(QCfileRow, 11, netActTotal[i])  # DPM total activity
 
                 QCfileRow += 1
 
-            allNetAct.append(netActTotal)
-            allRemAct.append(netActRem)
+            # Find the statistics
+            allNetAct.extend(netActTotal)
 
             # Find the statistics
-            grossTotalCounts = list(filter(None, grossTotalCounts))
-            removableCounts = list(filter(None, removableCounts))
+            netActTotal = list(filter(None, netActTotal))
 
-            if len(grossTotalCounts) == 0 or len(removableCounts) == 0:
-                continue
-
-            totalAverage = sum(grossTotalCounts) / len(grossTotalCounts)
-            totalMax = max(grossTotalCounts)
-            totalMin = min(grossTotalCounts)
-            totalStdDev = statistics.pstdev(grossTotalCounts)
-
-            removableAvg = sum(removableCounts) / len(removableCounts)
-            removableMax = max(removableCounts)
-            removableMin = min(removableCounts)
-            removableStdDev = statistics.pstdev(removableCounts)
+            if len(netActTotal) != 0:
+                totalAverage = sum(netActTotal) / len(netActTotal)
+                totalMax = max(netActTotal)
+                totalMin = min(netActTotal)
+                totalStdDev = statistics.pstdev(netActTotal)
+            else:
+                totalAverage = None
+                totalMax = None
+                totalMin = None
+                totalStdDev = None
 
             StatisticSheet.write(SecondSheetRow, 0, tail)  # File Name
             StatisticSheet.write(SecondSheetRow, 1, titleVals[0].value)  # Survey Number
@@ -679,10 +604,6 @@ def main(path, savePath):
             StatisticSheet.write(SecondSheetRow, 4, totalMax)
             StatisticSheet.write(SecondSheetRow, 5, totalAverage)
             StatisticSheet.write(SecondSheetRow, 6, totalStdDev)
-            StatisticSheet.write(SecondSheetRow, 7, removableMin)
-            StatisticSheet.write(SecondSheetRow, 8, removableMax)
-            StatisticSheet.write(SecondSheetRow, 9, removableAvg)
-            StatisticSheet.write(SecondSheetRow, 10, removableStdDev)
 
             SecondSheetRow += 1
 
@@ -692,33 +613,29 @@ def main(path, savePath):
         theFile.close()
         theFile.save(file)
         grossTotalCounts.clear()
-        removableCounts.clear()
 
-        # Find overall stats
-        grossTotalCounts = list(filter(None, grossTotalCounts))
-        removableCounts = list(filter(None, removableCounts))
+    # Find overall stats
+    allNetAct = list(filter(None, allNetAct))
+    allRemAct = list(filter(None, allRemAct))
 
-        if len(grossTotalCounts) == 0 or len(removableCounts) == 0:
-            continue
+    allTotalAverage = sum(allNetAct) / len(allNetAct)
+    allTotalMax = max(allNetAct)
+    allTotalMin = min(allNetAct)
+    allTotalStdDev = statistics.pstdev(allNetAct)
 
-        allTotalAverage = sum(grossTotalCounts) / len(grossTotalCounts)
-        allTotalMax = max(grossTotalCounts)
-        allTotalMin = min(grossTotalCounts)
-        allTotalStdDev = statistics.pstdev(grossTotalCounts)
+    allRemovableAvg = sum(allRemAct) / len(allRemAct)
+    allRemovableMax = max(allRemAct)
+    allRemovableMin = min(allRemAct)
+    allRemovableStdDev = statistics.pstdev(allRemAct)
 
-        allRemovableAvg = sum(removableCounts) / len(removableCounts)
-        allRemovableMax = max(removableCounts)
-        allRemovableMin = min(removableCounts)
-        allRemovableStdDev = statistics.pstdev(removableCounts)
-
-        StatisticSheet.write(1, 13, allTotalMin)
-        StatisticSheet.write(1, 14, allTotalMax)
-        StatisticSheet.write(1, 15, allTotalAverage)
-        StatisticSheet.write(1, 17, allTotalStdDev)
-        StatisticSheet.write(1, 18, allRemovableMin)
-        StatisticSheet.write(1, 19, allRemovableMax)
-        StatisticSheet.write(1, 20, allRemovableAvg)
-        StatisticSheet.write(1, 21, allRemovableStdDev)
+    StatisticSheet.write(1, 13, allTotalMin)
+    StatisticSheet.write(1, 14, allTotalMax)
+    StatisticSheet.write(1, 15, allTotalAverage)
+    StatisticSheet.write(1, 16, allTotalStdDev)
+    StatisticSheet.write(1, 17, allRemovableMin)
+    StatisticSheet.write(1, 18, allRemovableMax)
+    StatisticSheet.write(1, 19, allRemovableAvg)
+    StatisticSheet.write(1, 20, allRemovableStdDev)
 
     if len(invalidFiles) > 0:
         FailedSheet = QCworkbook.add_worksheet()

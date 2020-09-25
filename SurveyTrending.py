@@ -164,6 +164,10 @@ def main(path, savePath):
 
     def find_title_data(currentSheet, titleCell):
         row = int(titleCell[0])
+        ttemp = titleCell[1]
+        ttemp = ord(titleCell[1])
+        ttemp = ord(titleCell[1]) + 1
+        ttemp = chr(ord(titleCell[1]) + 1)
         col = chr(ord(titleCell[1]) + 1)
 
         while type(currentSheet[col + str(row)]).__name__ == 'MergedCell':
@@ -193,36 +197,6 @@ def main(path, savePath):
                     return [row, column]
 
         return [None, None]
-
-    def check_for_BettaGamma2(num):
-        found = 0
-        for row in range(1, 30):
-            for column in "GHIJKLMNOPQRSTUVWXYZ":
-
-                modelVal = currentSheet[column + str(row)].value
-                if modelVal != "Beta-Gamma":
-                    continue
-
-                found += 1
-                if found == num:
-                    return [row, column]
-
-        return [None, None]
-
-    def find_newer_efficiency():
-        for row in range(1, 30):
-            for column in "GHIJKLMNOPQRSTUVWXYZ":  # Here you can add or reduce the columns
-                modelCell = "{}{}".format(column, row)
-                if currentSheet[modelCell].value == "Instrument totalEfficiency":
-                    effCol = chr(ord(column) + 3)
-                    effCell = currentSheet[effCol + row]
-
-                    # In case it is 3 cells merged instead of 2
-                    if type(effCell).__name__ == 'MergedCell':
-                        effCol = chr(ord(column) + 4)
-                        effCell = currentSheet[effCol + row].value
-
-        return effCell
 
     def checkForMap():
         for row in range(1, 10):
@@ -402,7 +376,7 @@ def main(path, savePath):
                     netActTotal.append(None)
 
                 elif type(bkgRem) != str:
-                    netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i] / 60))
+                    netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i]))
                     netActTotal.append(netCPMTotal[i] / totalEfficiency)
 
                 else:
@@ -517,14 +491,14 @@ def main(path, savePath):
             if currentSheetString == "Map" or checkBlankString == "Blank":
                 continue
 
-            betaRow, betaCol = check_for_BettaGamma2(3)
+            betaRow, betaCol = check_for_BettaGamma(3)
             if betaRow is not None or betaCol is not None:
                 continue
 
             if checkForMap():
                 continue
 
-            betaRow, betaCol = check_for_BettaGamma2(1)
+            betaRow, betaCol = check_for_BettaGamma(1)
             if betaRow is None or betaCol is None:
                 continue
 
@@ -652,9 +626,6 @@ def main(path, savePath):
                 QCworksheet.write(QCfileRow, 15, netActRem[i])  # Removable DPM
 
                 QCfileRow += 1
-
-            allNetAct.extend(netActTotal)
-            allRemAct.extend(netActRem)
 
             # Find the statistics
             allNetAct.extend(netActTotal)
