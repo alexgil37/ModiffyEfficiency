@@ -384,6 +384,7 @@ def main(path, savePath):
 
             # total activity calculations
 
+            badFile = False
             for i in range(0, len(grossTotalCounts)):
                 if grossTotalCounts[i] is None:
                     netCPMTotal.append(None)
@@ -507,6 +508,10 @@ def main(path, savePath):
                 continue
 
             if checkForMap():
+                continue
+
+            betaRow, betaCol = check_for_BettaGamma2(1)
+            if betaRow is None or betaCol is None:
                 continue
 
             else:
