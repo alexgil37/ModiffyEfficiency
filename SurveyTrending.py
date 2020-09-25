@@ -40,9 +40,9 @@ def main(path, savePath):
     QCworksheet.write(0, 7, 'Level of Posting')
     QCworksheet.write(0, 8, 'Item Surveyed')
     QCworksheet.write(0, 9, 'Total Activity Instrument Efficiency')
-    QCworksheet.write(0, 10, 'Gross counts of total Activity')
-    QCworksheet.write(0, 11, 'Background counts of total activity')
-    QCworksheet.write(0, 12, 'Net Activity of total Activity')
+    QCworksheet.write(0, 10, 'Gross counts of Total Activity')
+    QCworksheet.write(0, 11, 'Background counts of Total activity')
+    QCworksheet.write(0, 12, 'Net Activity of Total Activity')
     QCworksheet.write(0, 13, 'Removable Instrument Efficiency')
     QCworksheet.write(0, 14, 'Gross Counts of Removable')
     QCworksheet.write(0, 15, 'Net Activity of Removable')
@@ -357,6 +357,7 @@ def main(path, savePath):
             netCPMTotal.clear()
 
             # Find DPMs
+            badFile = False
             for i in range(0, len(removableCounts)):
 
                 if removableCounts[i] is None:
@@ -381,9 +382,9 @@ def main(path, savePath):
                     except:
                         if invalidFiles.count(file) == 0:
                             invalidFiles.append(file)
+                            badFile = True
 
             # total activity calculations
-
             for i in range(0, len(grossTotalCounts)):
                 if grossTotalCounts[i] is None:
                     netCPMTotal.append(None)
@@ -407,10 +408,13 @@ def main(path, savePath):
                     except:
                         if invalidFiles.count(file) == 0:
                             invalidFiles.append(file)
+                            badFile = True
 
             # Write the results to the QC file
             # Write the current Worksheet
             head, tail = os.path.split(file)
+            if badFile is True:
+                continue
             for i in range(0, len(removableCounts)):
                 QCworksheet.write(QCfileRow, 0, tail)  # File Name
                 QCworksheet.write(QCfileRow, 1, titleVals[0].value)  # Survey Number
@@ -506,7 +510,14 @@ def main(path, savePath):
             if checkForMap():
                 continue
 
+            betaRow, betaCol = check_for_BettaGamma2(1)
+            if betaRow is None or betaCol is None:
+                continue
+
             else:
+                grossTotalCounts.clear()
+                removableCounts.clear()
+
                 betaRow, betaCol = check_for_BettaGamma(1)
                 removableBetaRow, removableBetaCol = check_for_BettaGamma(2)
 
@@ -673,7 +684,7 @@ def main(path, savePath):
         FailedSheet.write(0, 0, 'Invalid Files')
         x = 1
         for file in invalidFiles:
-            FailedSheet.write(0, x, file)
+            FailedSheet.write(x, 0, file)
 
 
     QCworkbook.close()
