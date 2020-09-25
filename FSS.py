@@ -4,7 +4,7 @@ import os
 import sys
 import xlsxwriter
 import statistics
-from pycel import ExcelCompiler
+import sympy
 
 
 def main(path, savePath):
@@ -16,7 +16,7 @@ def main(path, savePath):
     netActRem = list()
     netActTotal = list()
     netCPMTotal = list()
-    badfile = list()
+    invalidFiles = list()
 
     # Create the output folder
     if not os.path.isdir(savePath):
@@ -25,7 +25,7 @@ def main(path, savePath):
     print(path)
 
     # create excel QC file
-    QCworkbook = xlsxwriter.Workbook(savePath + '\\' + 'AlphaTrending.xlsx')
+    QCworkbook = xlsxwriter.Workbook(savePath + '\\' + 'BetaGammaTrending.xlsx')
     QCworksheet = QCworkbook.add_worksheet()
     StatisticSheet = QCworkbook.add_worksheet()
 
@@ -40,9 +40,9 @@ def main(path, savePath):
     QCworksheet.write(0, 7, 'Level of Posting')
     QCworksheet.write(0, 8, 'Item Surveyed')
     QCworksheet.write(0, 9, 'Total Activity Instrument Efficiency')
-    QCworksheet.write(0, 10, 'Gross counts of total Activity')
-    QCworksheet.write(0, 11, 'Background counts of total activity')
-    QCworksheet.write(0, 12, 'Net Activity of total Activity')
+    QCworksheet.write(0, 10, 'Gross counts of Total Activity')
+    QCworksheet.write(0, 11, 'Background counts of Total activity')
+    QCworksheet.write(0, 12, 'Net Activity of Total Activity')
     QCworksheet.write(0, 13, 'Removable Instrument Efficiency')
     QCworksheet.write(0, 14, 'Gross Counts of Removable')
     QCworksheet.write(0, 15, 'Net Activity of Removable')
@@ -174,7 +174,7 @@ def main(path, savePath):
             for column in "GHIJKLMNOPQRSTUVWXYZ":
 
                 modelVal = currentSheet[column + str(row)].value
-                if modelVal != "Alpha":
+                if modelVal != "Beta-Gamma":
                     continue
 
                 found += 1
@@ -189,7 +189,7 @@ def main(path, savePath):
             for column in "GHIJKLMNOPQRSTUVWXYZ":
 
                 modelVal = currentSheet[column + str(row)].value
-                if modelVal != "Alpha":
+                if modelVal != "Beta-Gamma":
                     continue
 
                 found += 1
@@ -217,7 +217,7 @@ def main(path, savePath):
         for row in range(1, 10):
             for column in "ABCDEFGHIJ":
                 modelCell = "{}{}".format(column, row)
-                if currentSheet[modelCell].value != None:
+                if currentSheet[modelCell].value is not None:
                     return False
 
         return True
@@ -317,7 +317,7 @@ def main(path, savePath):
 
             # Find totalEfficiency
             efficiencyRow, efficiencyCol = check_for_BettaGamma(1)
-            efficiencyRow = efficiencyRow + 4
+            efficiencyRow += 4
             totalEfficiency = currentSheet[efficiencyCol + str(efficiencyRow)].value
 
             ttemp, efficiencyCol = check_for_BettaGamma(2)
@@ -325,7 +325,7 @@ def main(path, savePath):
 
             # Find Removable Background
             efficiencyRow, efficiencyCol = check_for_BettaGamma(2)
-            efficiencyRow = efficiencyRow + 8
+            efficiencyRow += 8
             bkgRem = currentSheet[efficiencyCol + str(efficiencyRow)].value
 
             # ***********Find Title Data**********
@@ -357,30 +357,65 @@ def main(path, savePath):
             netCPMTotal.clear()
 
             # Find DPMs
+            badFile = False
             for i in range(0, len(removableCounts)):
 
-                if (removableCounts[i] is None):
+                if removableCounts[i] is None:
                     netCPMRem.append(None)
                     netActRem.append(None)
-                else:
+
+                elif type(bkgRem) != str:
                     netCPMRem.append(removableCounts[i] - (bkgRem / 60))
                     netActRem.append(netCPMRem[i] / remEfficiency)
 
-            # total activity calculations
+                else:
+                    try:
+                        bkgRem = bkgRem[1:]
+                        bkgRem = eval(bkgRem)
 
+                        # Better security but we need to test much more
+                        # bkgRem = int(sympy.sympify(bkgRem))
+
+                        netCPMRem.append(removableCounts[i] - (bkgRem / 60))
+                        netActRem.append(netCPMRem[i] / remEfficiency)
+
+                    except:
+                        if invalidFiles.count(file) == 0:
+                            invalidFiles.append(file)
+                            badFile = True
+
+            # total activity calculations
             for i in range(0, len(grossTotalCounts)):
-                if (grossTotalCounts[i] is None):
+                if grossTotalCounts[i] is None:
                     netCPMTotal.append(None)
                     netActTotal.append(None)
-                else:
+
+                elif type(bkgRem) != str:
                     netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i] / 60))
                     netActTotal.append(netCPMTotal[i] / totalEfficiency)
+
+                else:
+                    try:
+                        backgroundCounts[i] = backgroundCounts[i][1:]
+                        backgroundCounts[i] = eval(backgroundCounts[i])
+
+                        # Better security but we need to test much more
+                        # backgroundCounts[i] = int(sympy.sympify(backgroundCounts[i]))
+
+                        netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i] / 60))
+                        netActTotal.append(netCPMTotal[i] / totalEfficiency)
+
+                    except:
+                        if invalidFiles.count(file) == 0:
+                            invalidFiles.append(file)
+                            badFile = True
 
             # Write the results to the QC file
             # Write the current Worksheet
             head, tail = os.path.split(file)
-            length = len(removableCounts)
-            for x in range(0, len(removableCounts)):
+            if badFile is True:
+                continue
+            for i in range(0, len(removableCounts)):
                 QCworksheet.write(QCfileRow, 0, tail)  # File Name
                 QCworksheet.write(QCfileRow, 1, titleVals[0].value)  # Survey Number
                 QCworksheet.write(QCfileRow, 2, dateCell.value, dateFormat)  # Date
@@ -391,19 +426,18 @@ def main(path, savePath):
                 QCworksheet.write(QCfileRow, 7, titleVals[4].value)  # Level of Posting
                 QCworksheet.write(QCfileRow, 8, titleVals[5].value)  # Item Surveyed
                 QCworksheet.write(QCfileRow, 9, totalEfficiency)  # totalEfficiency
-                QCworksheet.write(QCfileRow, 10, grossTotalCounts[x])  # Gross Counts Total
-                QCworksheet.write(QCfileRow, 11, backgroundCounts[x])  # Background total activity
-                QCworksheet.write(QCfileRow, 12, netActTotal[x])  # DPM total activity
+                QCworksheet.write(QCfileRow, 10, grossTotalCounts[i])  # Gross Counts Total
+                QCworksheet.write(QCfileRow, 11, backgroundCounts[i])  # Background total activity
+                QCworksheet.write(QCfileRow, 12, netActTotal[i])  # DPM total activity
                 QCworksheet.write(QCfileRow, 13, remEfficiency)  # Removable instrument Efficeincy
-                QCworksheet.write(QCfileRow, 14, removableCounts[x])  # Gross removable Counts
-                QCworksheet.write(QCfileRow, 15, netActRem[x])  # Removable DPM
+                QCworksheet.write(QCfileRow, 14, removableCounts[i])  # Gross removable Counts
+                QCworksheet.write(QCfileRow, 15, netActRem[i])  # Removable DPM
 
                 QCfileRow += 1
 
             # Find the statistics
             netActTotal = list(filter(None, netActTotal))
             netActRem = list(filter(None, netActRem))
-
 
             if len(netActTotal) != 0:
                 totalAverage = sum(netActTotal) / len(netActTotal)
@@ -476,14 +510,19 @@ def main(path, savePath):
             if checkForMap():
                 continue
 
+            betaRow, betaCol = check_for_BettaGamma2(1)
+            if betaRow is None or betaCol is None:
+                continue
 
             else:
+                grossTotalCounts.clear()
+                removableCounts.clear()
+
                 betaRow, betaCol = check_for_BettaGamma(1)
                 removableBetaRow, removableBetaCol = check_for_BettaGamma(2)
 
                 n = 1
                 # Go until it is not None
-                test = currentSheet[betaCol + str(betaRow + n)].value
                 while currentSheet[betaCol + str(betaRow + n)].value != "gross counts":
                     print(currentSheet[betaCol + str(betaRow + n)].value)
                     n += 1
@@ -514,11 +553,9 @@ def main(path, savePath):
 
                     index += 1
 
-                test = 1
-
             # Find efficiency
             efficiencyRow, efficiencyCol = check_for_BettaGamma(1)
-            efficiencyRow = efficiencyRow + 4
+            efficiencyRow += 4
             totalEfficiency = currentSheet[efficiencyCol + str(efficiencyRow)].value
 
             ttemp, efficiencyCol = check_for_BettaGamma(2)
@@ -526,11 +563,11 @@ def main(path, savePath):
 
             # Find Background
             efficiencyRow, efficiencyCol = check_for_BettaGamma(2)
-            efficiencyRow = efficiencyRow + 5
+            efficiencyRow += 5
             bkgRem = currentSheet[efficiencyCol + str(efficiencyRow)].value
 
             efficiencyRow, efficiencyCol = check_for_BettaGamma(1)
-            efficiencyRow = efficiencyRow + 5
+            efficiencyRow += 5
             bkgTotal = currentSheet[efficiencyCol + str(efficiencyRow)].value
 
             # ***********Find Title Data**********
@@ -555,9 +592,6 @@ def main(path, savePath):
             currentSheetString = currentSheetString[12:]
             currentSheetString = currentSheetString[:-2]
 
-            if currentSheet == "2360-190602 (2)":
-                ("on second sprintheet")
-
             netCPMRem.clear()
             netActRem.clear()
             netActTotal.clear()
@@ -566,7 +600,7 @@ def main(path, savePath):
             # Find DPMs
             for i in range(0, len(removableCounts)):
 
-                if (removableCounts[i] is None):
+                if removableCounts[i] is None:
                     netCPMRem.append(None)
                     netActRem.append(None)
                 else:
@@ -576,17 +610,16 @@ def main(path, savePath):
             # total activity calculations
 
             for i in range(0, len(grossTotalCounts)):
-                if (grossTotalCounts[i] is None):
+                if grossTotalCounts[i] is None:
                     netCPMTotal.append(None)
                     netActTotal.append(None)
                 else:
                     netCPMTotal.append(grossTotalCounts[i] - (bkgTotal / 60))
                     netActTotal.append(netCPMTotal[i] / totalEfficiency)
 
-
             print("Adding data to file.")
             head, tail = os.path.split(file)
-            for x in range(0, len(removableCounts)):
+            for i in range(0, len(removableCounts)):
                 QCworksheet.write(QCfileRow, 0, tail)  # File Name
                 QCworksheet.write(QCfileRow, 1, titleVals[0].value)  # Survey Number
                 QCworksheet.write(QCfileRow, 2, dateCell.value, dateFormat)  # Date
@@ -597,12 +630,12 @@ def main(path, savePath):
                 QCworksheet.write(QCfileRow, 7, titleVals[4].value)  # Level of Posting
                 QCworksheet.write(QCfileRow, 8, titleVals[5].value)  # Item Surveyed
                 QCworksheet.write(QCfileRow, 9, totalEfficiency)  # totalEfficiency
-                QCworksheet.write(QCfileRow, 10, grossTotalCounts[x])  # Gross Counts Total
+                QCworksheet.write(QCfileRow, 10, grossTotalCounts[i])  # Gross Counts Total
                 QCworksheet.write(QCfileRow, 11, bkgTotal)  # Background total activity
-                QCworksheet.write(QCfileRow, 12, netActTotal[x])  # DPM total activity
+                QCworksheet.write(QCfileRow, 12, netActTotal[i])  # DPM total activity
                 QCworksheet.write(QCfileRow, 13, remEfficiency)  # Removable instrument Efficeincy
-                QCworksheet.write(QCfileRow, 14, removableCounts[x])  # Gross removable Counts
-                QCworksheet.write(QCfileRow, 15, netActRem[x])  # Removable DPM
+                QCworksheet.write(QCfileRow, 14, removableCounts[i])  # Gross removable Counts
+                QCworksheet.write(QCfileRow, 15, netActRem[i])  # Removable DPM
 
                 QCfileRow += 1
 
@@ -645,5 +678,11 @@ def main(path, savePath):
         grossTotalCounts.clear()
         removableCounts.clear()
 
+    if len(invalidFiles) > 0:
+        FailedSheet = QCworkbook.add_worksheet()
+        FailedSheet.write(0, 0, 'Invalid Files')
+        x = 1
+        for file in invalidFiles:
+            FailedSheet.write(x, 0, file)
+
     QCworkbook.close()
-    os.startfile(savePath + '\\' + 'AlphaTrending.xlsx')
