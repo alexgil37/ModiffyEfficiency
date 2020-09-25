@@ -609,15 +609,6 @@ def main(path, savePath):
             print("Adding data to file.")
             head, tail = os.path.split(file)
 
-            if len(removableCounts) is None:
-                valueslength = len(grossTotalCounts)
-            elif len(grossTotalCounts) is None:
-                valueslength = len(removableCounts)
-            elif len(removableCounts) > len(grossTotalCounts):
-                valueslength = len(removableCounts)
-            else:
-                valueslength = len(grossTotalCounts)
-
             for i in range(0, valueslength):
                 QCworksheet.write(QCfileRow, 0, tail)  # File Name
                 QCworksheet.write(QCfileRow, 1, titleVals[0].value)  # Survey Number
