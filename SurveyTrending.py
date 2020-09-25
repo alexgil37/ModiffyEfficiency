@@ -515,6 +515,9 @@ def main(path, savePath):
                 continue
 
             else:
+                removableCounts.clear()
+                grossTotalCounts.clear()
+
                 betaRow, betaCol = check_for_BettaGamma(1)
                 removableBetaRow, removableBetaCol = check_for_BettaGamma(2)
 
