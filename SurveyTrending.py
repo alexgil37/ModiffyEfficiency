@@ -407,10 +407,13 @@ def main(path, savePath):
                     except:
                         if invalidFiles.count(file) == 0:
                             invalidFiles.append(file)
+                            badFile = True
 
             # Write the results to the QC file
             # Write the current Worksheet
             head, tail = os.path.split(file)
+            if badFile is True:
+                continue
             for i in range(0, len(removableCounts)):
                 QCworksheet.write(QCfileRow, 0, tail)  # File Name
                 QCworksheet.write(QCfileRow, 1, titleVals[0].value)  # Survey Number
