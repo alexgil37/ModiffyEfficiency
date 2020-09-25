@@ -19,7 +19,7 @@ def main(path, savePath):
     badfile = list()
 
     # Create the output folder
-    if os.path.isfile(savePath):
+    if not os.path.isdir(savePath):
         os.mkdir(savePath)
 
     print(path)

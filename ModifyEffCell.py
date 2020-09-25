@@ -12,7 +12,7 @@ def main(path, savePath):
 
     # copy original files into designated filepath
     fileSavePath = os.path.join(savePath, "Output Files")
-    if os.path.isfile(savePath):
+    if not os.path.isdir(fileSavePath):
         os.mkdir(fileSavePath)
     copy_tree(path, fileSavePath)
 

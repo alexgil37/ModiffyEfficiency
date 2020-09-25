@@ -6,7 +6,7 @@ from pycel import ExcelCompiler
 
 def main(path, savePath):
     # Create the output folder
-    if os.path.isfile(savePath):
+    if not os.path.isdir(savePath):
         os.mkdir(savePath)
 
     print(path)
