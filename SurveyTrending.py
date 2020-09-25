@@ -685,9 +685,5 @@ def main(path, savePath):
         x = 1
         for file in invalidFiles:
             FailedSheet.write(x, 0, file)
-<<<<<<< HEAD
-
-=======
->>>>>>> parent of 727d4ba... Merge branch 'master' of https://github.com/alexgil37/ModiffyEfficiency
 
     QCworkbook.close()
