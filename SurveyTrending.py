@@ -616,12 +616,8 @@ def main(path, savePath):
 
             print("Adding data to file.")
             head, tail = os.path.split(file)
-<<<<<<< HEAD
 
-            for i in range(0, valueslength):
-=======
             for i in range(0, len(removableCounts)):
->>>>>>> parent of 773bf3e... Update SurveyTrending.py
                 QCworksheet.write(QCfileRow, 0, tail)  # File Name
                 QCworksheet.write(QCfileRow, 1, titleVals[0].value)  # Survey Number
                 QCworksheet.write(QCfileRow, 2, dateCell.value, dateFormat)  # Date
