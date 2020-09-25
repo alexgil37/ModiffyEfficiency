@@ -357,6 +357,7 @@ def main(path, savePath):
             netCPMTotal.clear()
 
             # Find DPMs
+            badFile = False
             for i in range(0, len(removableCounts)):
 
                 if removableCounts[i] is None:
@@ -381,10 +382,9 @@ def main(path, savePath):
                     except:
                         if invalidFiles.count(file) == 0:
                             invalidFiles.append(file)
+                            badFile = True
 
             # total activity calculations
-
-            badFile = False
             for i in range(0, len(grossTotalCounts)):
                 if grossTotalCounts[i] is None:
                     netCPMTotal.append(None)
