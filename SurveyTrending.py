@@ -515,6 +515,9 @@ def main(path, savePath):
                 continue
 
             else:
+                grossTotalCounts.clear()
+                removableCounts.clear()
+
                 betaRow, betaCol = check_for_BettaGamma(1)
                 removableBetaRow, removableBetaCol = check_for_BettaGamma(2)
 
@@ -616,6 +619,7 @@ def main(path, savePath):
 
             print("Adding data to file.")
             head, tail = os.path.split(file)
+            test20 = len(removableCounts)
             for i in range(0, len(removableCounts)):
                 QCworksheet.write(QCfileRow, 0, tail)  # File Name
                 QCworksheet.write(QCfileRow, 1, titleVals[0].value)  # Survey Number
@@ -680,7 +684,7 @@ def main(path, savePath):
         FailedSheet.write(0, 0, 'Invalid Files')
         x = 1
         for file in invalidFiles:
-            FailedSheet.write(0, x, file)
+            FailedSheet.write(x, 0, file)
 
 
     QCworkbook.close()
