@@ -14,6 +14,8 @@ def main(path, savePath):
     invalidSheets = list()
     badfile = list()
 
+
+
     # Create the output folder
     if os.path.isfile(savePath):
         os.mkdir(savePath)
@@ -369,10 +371,10 @@ def main(path, savePath):
                 QCfileRow += 1
 
             # Find the statistics
-            grossTotalCounts = list(filter(None, grossTotalCounts))
+            dpmCounts = list(filter(None, dpmCounts))
             removableCounts = list(filter(None, removableCounts))
 
-            if len(grossTotalCounts) == 0 or len(removableCounts) == 0:
+            if len(dpmCounts) == 0 or len(removableCounts) == 0:
                 continue
 
             totalAverage = sum(dpmCounts) / len(dpmCounts)
@@ -542,10 +544,10 @@ def main(path, savePath):
                 QCfileRow += 1
 
             # Find the statistics
-            grossTotalCounts = list(filter(None, grossTotalCounts))
+            dpmCounts = list(filter(None, dpmCounts))
             removableCounts = list(filter(None, removableCounts))
 
-            if len(grossTotalCounts) == 0 or len(removableCounts) == 0:
+            if len(dpmCounts) == 0 or len(removableCounts) == 0:
                 continue
 
             totalAverage = sum(dpmCounts) / len(dpmCounts)
@@ -582,3 +584,30 @@ def main(path, savePath):
 
     QCworkbook.close()
     os.startfile(savePath + '\\' + 'AlphaTrending.xlsx')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
