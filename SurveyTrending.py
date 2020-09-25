@@ -61,12 +61,13 @@ def main(path, savePath):
     StatisticSheet.write(0, 8, 'Removable Max')
     StatisticSheet.write(0, 9, 'Removable Average')
     StatisticSheet.write(0, 10, 'Removable Standard Deviation')
+
     StatisticSheet.write(0, 13, 'Overall Total Activity  Minimum')
     StatisticSheet.write(0, 14, 'Overall Total Activity Maximum')
     StatisticSheet.write(0, 15, 'Overall Total Activity Average')
-    StatisticSheet.write(0, 17, 'Overall Total Activity Standard Deviation')
-    StatisticSheet.write(0, 18, 'Overall Removable Minimum')
-    StatisticSheet.write(0, 19, 'Overall Removable Maximum')
+    StatisticSheet.write(0, 16, 'Overall Total Activity Standard Deviation')
+    StatisticSheet.write(0, 17, 'Overall Removable Minimum')
+    StatisticSheet.write(0, 18, 'Overall Removable Maximum')
     StatisticSheet.write(0, 20, 'Overall Removable Average')
     StatisticSheet.write(0, 21, 'Overall Removable Standard Deviation')
 
@@ -656,21 +657,34 @@ def main(path, savePath):
             allRemAct.extend(netActRem)
 
             # Find the statistics
-            grossTotalCounts = list(filter(None, grossTotalCounts))
-            removableCounts = list(filter(None, removableCounts))
+            allNetAct.extend(netActTotal)
+            allRemAct.extend(netActRem)
 
-            if len(grossTotalCounts) == 0 or len(removableCounts) == 0:
-                continue
+            # Find the statistics
+            netActTotal = list(filter(None, netActTotal))
+            netActRem = list(filter(None, netActRem))
 
-            totalAverage = sum(grossTotalCounts) / len(grossTotalCounts)
-            totalMax = max(grossTotalCounts)
-            totalMin = min(grossTotalCounts)
-            totalStdDev = statistics.pstdev(grossTotalCounts)
+            if len(netActTotal) != 0:
+                totalAverage = sum(netActTotal) / len(netActTotal)
+                totalMax = max(netActTotal)
+                totalMin = min(netActTotal)
+                totalStdDev = statistics.pstdev(netActTotal)
+            else:
+                totalAverage = None
+                totalMax = None
+                totalMin = None
+                totalStdDev = None
 
-            removableAvg = sum(removableCounts) / len(removableCounts)
-            removableMax = max(removableCounts)
-            removableMin = min(removableCounts)
-            removableStdDev = statistics.pstdev(removableCounts)
+            if len(netActRem) != 0:
+                removableAvg = sum(netActRem) / len(netActRem)
+                removableMax = max(netActRem)
+                removableMin = min(netActRem)
+                removableStdDev = statistics.pstdev(netActRem)
+            else:
+                removableAvg = None
+                removableMax = None
+                removableMin = None
+                removableStdDev = None
 
             StatisticSheet.write(SecondSheetRow, 0, tail)  # File Name
             StatisticSheet.write(SecondSheetRow, 1, titleVals[0].value)  # Survey Number
@@ -713,11 +727,11 @@ def main(path, savePath):
     StatisticSheet.write(1, 13, allTotalMin)
     StatisticSheet.write(1, 14, allTotalMax)
     StatisticSheet.write(1, 15, allTotalAverage)
-    StatisticSheet.write(1, 17, allTotalStdDev)
-    StatisticSheet.write(1, 18, allRemovableMin)
-    StatisticSheet.write(1, 19, allRemovableMax)
-    StatisticSheet.write(1, 20, allRemovableAvg)
-    StatisticSheet.write(1, 21, allRemovableStdDev)
+    StatisticSheet.write(1, 16, allTotalStdDev)
+    StatisticSheet.write(1, 17, allRemovableMin)
+    StatisticSheet.write(1, 18, allRemovableMax)
+    StatisticSheet.write(1, 19, allRemovableAvg)
+    StatisticSheet.write(1, 20, allRemovableStdDev)
 
     if len(invalidFiles) > 0:
         FailedSheet = QCworkbook.add_worksheet()
