@@ -17,6 +17,8 @@ def main(path, savePath):
     netActTotal = list()
     netCPMTotal = list()
     invalidFiles = list()
+    allNetAct = list()
+    allRemAct = list()
 
     # Create the output folder
     if not os.path.isdir(savePath):
@@ -47,7 +49,7 @@ def main(path, savePath):
     QCworksheet.write(0, 14, 'Gross Counts of Removable')
     QCworksheet.write(0, 15, 'Net Activity of Removable')
 
-    # Creaate statistics sheet Headers
+    # Create statistics sheet Headers
     StatisticSheet.write(0, 0, 'File Name')
     StatisticSheet.write(0, 1, 'Survey Number')
     StatisticSheet.write(0, 2, 'Sheet Name')
@@ -59,6 +61,14 @@ def main(path, savePath):
     StatisticSheet.write(0, 8, 'Removable Max')
     StatisticSheet.write(0, 9, 'Removable Average')
     StatisticSheet.write(0, 10, 'Removable Standard Deviation')
+    StatisticSheet.write(0, 13, 'Overall Total Activity  Minimum')
+    StatisticSheet.write(0, 14, 'Overall Total Activity Maximum')
+    StatisticSheet.write(0, 15, 'Overall Total Activity Average')
+    StatisticSheet.write(0, 17, 'Overall Total Activity Standard Deviation')
+    StatisticSheet.write(0, 18, 'Overall Removable Minimum')
+    StatisticSheet.write(0, 19, 'Overall Removable Maximum')
+    StatisticSheet.write(0, 20, 'Overall Removable Average')
+    StatisticSheet.write(0, 21, 'Overall Removable Standard Deviation')
 
     def resource_path(relative_path):
         base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.dirname(__file__)))
@@ -435,6 +445,9 @@ def main(path, savePath):
 
                 QCfileRow += 1
 
+            allNetAct.append(netActTotal)
+            allRemAct.append(netActRem)
+
             # Find the statistics
             netActTotal = list(filter(None, netActTotal))
             netActRem = list(filter(None, netActRem))
@@ -639,6 +652,9 @@ def main(path, savePath):
 
                 QCfileRow += 1
 
+            allNetAct.append(netActTotal)
+            allRemAct.append(netActRem)
+
             # Find the statistics
             grossTotalCounts = list(filter(None, grossTotalCounts))
             removableCounts = list(filter(None, removableCounts))
@@ -677,6 +693,32 @@ def main(path, savePath):
         theFile.save(file)
         grossTotalCounts.clear()
         removableCounts.clear()
+
+        # Find overall stats
+        grossTotalCounts = list(filter(None, grossTotalCounts))
+        removableCounts = list(filter(None, removableCounts))
+
+        if len(grossTotalCounts) == 0 or len(removableCounts) == 0:
+            continue
+
+        allTotalAverage = sum(grossTotalCounts) / len(grossTotalCounts)
+        allTotalMax = max(grossTotalCounts)
+        allTotalMin = min(grossTotalCounts)
+        allTotalStdDev = statistics.pstdev(grossTotalCounts)
+
+        allRemovableAvg = sum(removableCounts) / len(removableCounts)
+        allRemovableMax = max(removableCounts)
+        allRemovableMin = min(removableCounts)
+        allRemovableStdDev = statistics.pstdev(removableCounts)
+
+        StatisticSheet.write(1, 13, allTotalMin)
+        StatisticSheet.write(1, 14, allTotalMax)
+        StatisticSheet.write(1, 15, allTotalAverage)
+        StatisticSheet.write(1, 17, allTotalStdDev)
+        StatisticSheet.write(1, 18, allRemovableMin)
+        StatisticSheet.write(1, 19, allRemovableMax)
+        StatisticSheet.write(1, 20, allRemovableAvg)
+        StatisticSheet.write(1, 21, allRemovableStdDev)
 
     if len(invalidFiles) > 0:
         FailedSheet = QCworkbook.add_worksheet()
