@@ -291,13 +291,15 @@ def main(path, savePath):
             efficiencyRow, efficiencyCol = check_for_BettaGamma(1)
             efficiencyRow += 4
             totalEfficiency = currentSheet[efficiencyCol + str(efficiencyRow)].value
+            surfaceEfficiency = currentSheet[efficiencyCol + str(efficiencyRow + 1)].value
+            actCorrFact = currentSheet[efficiencyCol + str(efficiencyRow + 2)].value
 
             ttemp, efficiencyCol = check_for_BettaGamma(2)
             remEfficiency = currentSheet[efficiencyCol + str(efficiencyRow)].value
 
             # Find Removable Background
             efficiencyRow, efficiencyCol = check_for_BettaGamma(2)
-            efficiencyRow += 8
+            efficiencyRow += 9
             bkgRem = currentSheet[efficiencyCol + str(efficiencyRow)].value
 
             # ***********Find Title Data**********
@@ -364,7 +366,7 @@ def main(path, savePath):
 
                 elif type(bkgRem) != str:
                     netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i]))
-                    netActTotal.append(netCPMTotal[i] / totalEfficiency)
+                    netActTotal.append((netCPMTotal[i] / (totalEfficiency * surfaceEfficiency)) * actCorrFact)
 
                 else:
                     try:
@@ -374,8 +376,8 @@ def main(path, savePath):
                         # Better security but we need to test much more
                         # backgroundCounts[i] = int(sympy.sympify(backgroundCounts[i]))
 
-                        netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i] / 60))
-                        netActTotal.append(netCPMTotal[i] / totalEfficiency)
+                        netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i]))
+                        netActTotal.append((netCPMTotal[i] / (totalEfficiency * surfaceEfficiency)) * actCorrFact)
 
                     except:
                         if invalidFiles.count(file) == 0:
