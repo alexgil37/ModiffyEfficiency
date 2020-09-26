@@ -1,5 +1,4 @@
 import openpyxl
-import re
 import os
 import sys
 import xlsxwriter
@@ -33,25 +32,26 @@ def main(path, savePath):
 
     # create columns with headers
     QCworksheet.write(0, 0, 'File Name')
-    QCworksheet.write(0, 1, 'Survey Number')
-    QCworksheet.write(0, 2, 'Date')
-    QCworksheet.write(0, 3, 'Survey Tech')
-    QCworksheet.write(0, 4, 'Count room Tech')
-    QCworksheet.write(0, 5, 'Date of Count Room')
-    QCworksheet.write(0, 6, 'Survey Unit')
-    QCworksheet.write(0, 7, 'Item Surveyed')
-    QCworksheet.write(0, 8, 'Total Activity Instrument Efficiency')
-    QCworksheet.write(0, 9, 'Gross counts of Total Activity')
-    QCworksheet.write(0, 10, 'Background counts of Total activity')
-    QCworksheet.write(0, 11, 'Net Activity of Total Activity')
-    QCworksheet.write(0, 12, 'Removable Instrument Efficiency')
-    QCworksheet.write(0, 13, 'Gross Counts of Removable')
-    QCworksheet.write(0, 14, 'Net Activity of Removable')
+    QCworksheet.write(0, 1, 'Sheet Name')
+    QCworksheet.write(0, 2, 'Survey Number')
+    QCworksheet.write(0, 3, 'Date')
+    QCworksheet.write(0, 4, 'Survey Tech')
+    QCworksheet.write(0, 5, 'Count room Tech')
+    QCworksheet.write(0, 6, 'Date of Count Room')
+    QCworksheet.write(0, 7, 'Survey Unit')
+    QCworksheet.write(0, 8, 'Item Surveyed')
+    QCworksheet.write(0, 9, 'Total Activity Instrument Efficiency')
+    QCworksheet.write(0, 10, 'Gross counts of Total Activity')
+    QCworksheet.write(0, 11, 'Background counts of Total activity')
+    QCworksheet.write(0, 12, 'Net Activity of Total Activity')
+    QCworksheet.write(0, 13, 'Removable Instrument Efficiency')
+    QCworksheet.write(0, 14, 'Gross Counts of Removable')
+    QCworksheet.write(0, 15, 'Net Activity of Removable')
 
     # Create statistics sheet Headers
     StatisticSheet.write(0, 0, 'File Name')
-    StatisticSheet.write(0, 1, 'Survey Number')
-    StatisticSheet.write(0, 2, 'Sheet Name')
+    StatisticSheet.write(0, 1, 'Sheet Name')
+    StatisticSheet.write(0, 2, 'Survey Number')
     StatisticSheet.write(0, 3, 'Total Activity Min')
     StatisticSheet.write(0, 4, 'Total Activity Max')
     StatisticSheet.write(0, 5, 'Total Activity Average')
@@ -67,8 +67,8 @@ def main(path, savePath):
     StatisticSheet.write(0, 16, 'Overall Total Activity Standard Deviation')
     StatisticSheet.write(0, 17, 'Overall Removable Minimum')
     StatisticSheet.write(0, 18, 'Overall Removable Maximum')
-    StatisticSheet.write(0, 20, 'Overall Removable Average')
-    StatisticSheet.write(0, 21, 'Overall Removable Standard Deviation')
+    StatisticSheet.write(0, 19, 'Overall Removable Average')
+    StatisticSheet.write(0, 20, 'Overall Removable Standard Deviation')
 
     def resource_path(relative_path):
         base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.dirname(__file__)))
@@ -164,12 +164,6 @@ def main(path, savePath):
 
         return valueCell
 
-    def remove_isblank(sheet, cellCord):
-        print(cellCord)
-        temp = sheet[cellCord].value
-        temp = re.sub("ISBLANK\([^)]+\)", "FALSE", temp)
-        sheet[cellCord].value = temp
-
     def check_for_BettaGamma(num):
         found = 0
         for row in range(1, 30):
@@ -193,6 +187,19 @@ def main(path, savePath):
                     return False
 
         return True
+
+    def removePercent(var):
+        # Find the %
+        j = var.find('%')
+        k = var[:j]
+
+        # remove the percent from the string
+        var = var.replace((str(k)+"%"), "")
+        k = "." + k.replace(".", "")
+        test20 = k + var
+
+        return test20
+
 
     files = getListOfFiles(path)
 
@@ -291,6 +298,9 @@ def main(path, savePath):
             efficiencyRow, efficiencyCol = check_for_BettaGamma(1)
             efficiencyRow += 4
             totalEfficiency = currentSheet[efficiencyCol + str(efficiencyRow)].value
+            if isinstance(totalEfficiency, str):
+                totalEfficiency = eval(removePercent(totalEfficiency[1:]))
+
 
             ttemp, efficiencyCol = check_for_BettaGamma(2)
             remEfficiency = currentSheet[efficiencyCol + str(efficiencyRow)].value
@@ -299,6 +309,16 @@ def main(path, savePath):
             efficiencyRow, efficiencyCol = check_for_BettaGamma(2)
             efficiencyRow += 8
             bkgRem = currentSheet[efficiencyCol + str(efficiencyRow)].value
+
+            # Find Surface Efficiency
+            efficiencyRow, efficiencyCol = check_for_BettaGamma(1)
+            efficiencyRow += 5
+            surfaceEfficiency = currentSheet[efficiencyCol + str(efficiencyRow)].value
+
+            # Find Correction Factor
+            efficiencyRow, efficiencyCol = check_for_BettaGamma(1)
+            efficiencyRow += 6
+            correctionFactor = currentSheet[efficiencyCol + str(efficiencyRow)].value
 
             # ***********Find Title Data**********
             titleVals = find_title_vals(currentSheet)
@@ -364,8 +384,7 @@ def main(path, savePath):
 
                 elif type(bkgRem) != str:
                     netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i]))
-                    netActTotal.append(netCPMTotal[i] / totalEfficiency)
-
+                    netActTotal.append((netCPMTotal[i] / (totalEfficiency * surfaceEfficiency)) * correctionFactor)
                 else:
                     try:
                         backgroundCounts[i] = backgroundCounts[i][1:]
@@ -375,7 +394,8 @@ def main(path, savePath):
                         # backgroundCounts[i] = int(sympy.sympify(backgroundCounts[i]))
 
                         netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i] / 60))
-                        netActTotal.append(netCPMTotal[i] / totalEfficiency)
+                        netActTotal.append((netCPMTotal[i] / (totalEfficiency * surfaceEfficiency)) * correctionFactor)
+                        test20 = 20
 
                     except:
                         if invalidFiles.count(file) == 0:
@@ -389,20 +409,21 @@ def main(path, savePath):
                 continue
             for i in range(0, len(removableCounts)):
                 QCworksheet.write(QCfileRow, 0, tail)  # File Name
-                QCworksheet.write(QCfileRow, 1, titleVals[0].value)  # Survey Number
-                QCworksheet.write(QCfileRow, 2, dateCell.value, dateFormat)  # Date
-                QCworksheet.write(QCfileRow, 3, titleVals[1].value)  # Survey Tech
-                QCworksheet.write(QCfileRow, 4, titleVals[2].value)  # Count room Tech
-                QCworksheet.write(QCfileRow, 5, secondDateCell.value, dateFormat)  # Date of Count Room
-                QCworksheet.write(QCfileRow, 6, titleVals[3].value)  # Survey Unit
-                QCworksheet.write(QCfileRow, 7, titleVals[4].value)  # Item Surveyed
-                QCworksheet.write(QCfileRow, 8, totalEfficiency)  # totalEfficiency
-                QCworksheet.write(QCfileRow, 9, grossTotalCounts[i])  # Gross Counts Total
-                QCworksheet.write(QCfileRow, 10, backgroundCounts[i])  # Background total activity
-                QCworksheet.write(QCfileRow, 11, netActTotal[i])  # DPM total activity
-                QCworksheet.write(QCfileRow, 12, remEfficiency)  # Removable instrument Efficeincy
-                QCworksheet.write(QCfileRow, 13, removableCounts[i])  # Gross removable Counts
-                QCworksheet.write(QCfileRow, 14, netActRem[i])  # Removable DPM
+                QCworksheet.write(QCfileRow, 1, currentSheetString)
+                QCworksheet.write(QCfileRow, 2, titleVals[0].value)  # Survey Number
+                QCworksheet.write(QCfileRow, 3, dateCell.value, dateFormat)  # Date
+                QCworksheet.write(QCfileRow, 4, titleVals[1].value)  # Survey Tech
+                QCworksheet.write(QCfileRow, 5, titleVals[2].value)  # Count room Tech
+                QCworksheet.write(QCfileRow, 6, secondDateCell.value, dateFormat)  # Date of Count Room
+                QCworksheet.write(QCfileRow, 7, titleVals[3].value)  # Survey Unit
+                QCworksheet.write(QCfileRow, 8, titleVals[4].value)  # Item Surveyed
+                QCworksheet.write(QCfileRow, 9, totalEfficiency)  # totalEfficiency
+                QCworksheet.write(QCfileRow, 10, grossTotalCounts[i])  # Gross Counts Total
+                QCworksheet.write(QCfileRow, 11, backgroundCounts[i])  # Background total activity
+                QCworksheet.write(QCfileRow, 12, netActTotal[i])  # DPM total activity
+                QCworksheet.write(QCfileRow, 13, remEfficiency)  # Removable instrument Efficeincy
+                QCworksheet.write(QCfileRow, 14, removableCounts[i])  # Gross removable Counts
+                QCworksheet.write(QCfileRow, 15, netActRem[i])  # Removable DPM
 
                 QCfileRow += 1
 
@@ -436,8 +457,8 @@ def main(path, savePath):
                 removableStdDev = None
 
             StatisticSheet.write(SecondSheetRow, 0, tail)  # File Name
-            StatisticSheet.write(SecondSheetRow, 1, titleVals[0].value)  # Survey Number
-            StatisticSheet.write(SecondSheetRow, 2, currentSheetString)  # Current Sheet
+            StatisticSheet.write(SecondSheetRow, 1, currentSheetString)
+            StatisticSheet.write(SecondSheetRow, 2, titleVals[0].value)  # Survey Number
             StatisticSheet.write(SecondSheetRow, 3, totalMin)
             StatisticSheet.write(SecondSheetRow, 4, totalMax)
             StatisticSheet.write(SecondSheetRow, 5, totalAverage)
@@ -452,7 +473,7 @@ def main(path, savePath):
         theFile.close()
 
     """redo but for the other list"""
-    print("IN THE INVALID BETA ")
+    print("IN THE SCAN SHEET")
     del grossTotalCounts
     del backgroundCounts
     del removableCounts
@@ -490,7 +511,6 @@ def main(path, savePath):
 
             else:
                 grossTotalCounts.clear()
-                removableCounts.clear()
 
                 betaRow, betaCol = check_for_BettaGamma(2)
 
@@ -520,9 +540,6 @@ def main(path, savePath):
             efficiencyRow += 4
             totalEfficiency = currentSheet[efficiencyCol + str(efficiencyRow)].value
 
-            # ttemp, efficiencyCol = check_for_BettaGamma(2)
-            # remEfficiency = currentSheet[efficiencyCol + str(efficiencyRow)].value
-
             # Find Background
             efficiencyRow, efficiencyCol = check_for_BettaGamma(1)
             efficiencyRow += 5
@@ -546,6 +563,16 @@ def main(path, savePath):
             secondDateCell = find_title_data(currentSheet, dateTitleCell)
             print("After second date")
 
+            # Find Surface Efficiency
+            efficiencyRow, efficiencyCol = check_for_BettaGamma(1)
+            efficiencyRow += 5
+            surfaceEfficiency = currentSheet[efficiencyCol + str(efficiencyRow)].value
+
+            # Find Correction Factor
+            efficiencyRow, efficiencyCol = check_for_BettaGamma(1)
+            efficiencyRow += 6
+            correctionFactor = currentSheet[efficiencyCol + str(efficiencyRow)].value
+
             currentSheetString = str(currentSheet)
             currentSheetString = currentSheetString[12:]
             currentSheetString = currentSheetString[:-2]
@@ -559,24 +586,24 @@ def main(path, savePath):
                     netCPMTotal.append(None)
                     netActTotal.append(None)
                 else:
-                    netCPMTotal.append(grossTotalCounts[i] - (bkgTotal))
-                    netActTotal.append(netCPMTotal[i] / totalEfficiency)
+                    netCPMTotal.append(grossTotalCounts[i] - bkgTotal)
+                    netActTotal.append((netCPMTotal[i] / (totalEfficiency * surfaceEfficiency)) * correctionFactor)
 
             print("Adding data to file.")
             head, tail = os.path.split(file)
-            for i in range(0, len(removableCounts)):
+            for i in range(0, len(grossTotalCounts)):
                 QCworksheet.write(QCfileRow, 0, tail)  # File Name
-                QCworksheet.write(QCfileRow, 1, titleVals[0].value)  # Survey Number
-                QCworksheet.write(QCfileRow, 2, dateCell.value, dateFormat)  # Date
-                QCworksheet.write(QCfileRow, 3, titleVals[1].value)  # Survey Tech
-                QCworksheet.write(QCfileRow, 4, titleVals[2].value)  # Count room Tech
-                QCworksheet.write(QCfileRow, 5, secondDateCell.value, dateFormat)  # Date of Count Room
-                QCworksheet.write(QCfileRow, 6, titleVals[3].value)  # Survey Unit
-                QCworksheet.write(QCfileRow, 7, titleVals[4].value)  # Item Surveyed
-                QCworksheet.write(QCfileRow, 8, totalEfficiency)  # totalEfficiency
-                QCworksheet.write(QCfileRow, 9, grossTotalCounts[i])  # Gross Counts Total
-                QCworksheet.write(QCfileRow, 10, bkgTotal)  # Background total activity
-                QCworksheet.write(QCfileRow, 11, netActTotal[i])  # DPM total activity
+                QCworksheet.write(QCfileRow, 1, currentSheetString)
+                QCworksheet.write(QCfileRow, 2, titleVals[0].value)  # Survey Number
+                QCworksheet.write(QCfileRow, 3, dateCell.value, dateFormat)  # Date
+                QCworksheet.write(QCfileRow, 4, titleVals[1].value)  # Survey Tech
+                QCworksheet.write(QCfileRow, 5, titleVals[2].value)  # Count room Tech
+                QCworksheet.write(QCfileRow, 6, secondDateCell.value, dateFormat)  # Date of Count Room
+                QCworksheet.write(QCfileRow, 7, titleVals[3].value)  # Survey Unit
+                QCworksheet.write(QCfileRow, 8, titleVals[4].value)  # Item Surveyed
+                QCworksheet.write(QCfileRow, 9, totalEfficiency)  # totalEfficiency
+                QCworksheet.write(QCfileRow, 10, grossTotalCounts[i])  # Gross Counts Total
+                QCworksheet.write(QCfileRow, 12, netActTotal[i])  # DPM total activity
 
                 QCfileRow += 1
 
@@ -598,12 +625,13 @@ def main(path, savePath):
                 totalStdDev = None
 
             StatisticSheet.write(SecondSheetRow, 0, tail)  # File Name
-            StatisticSheet.write(SecondSheetRow, 1, titleVals[0].value)  # Survey Number
-            StatisticSheet.write(SecondSheetRow, 2, currentSheetString)  # Current Sheet
-            StatisticSheet.write(SecondSheetRow, 3, totalMin)
-            StatisticSheet.write(SecondSheetRow, 4, totalMax)
-            StatisticSheet.write(SecondSheetRow, 5, totalAverage)
-            StatisticSheet.write(SecondSheetRow, 6, totalStdDev)
+            StatisticSheet.write(SecondSheetRow, 1, currentSheetString)
+            StatisticSheet.write(SecondSheetRow, 2, titleVals[0].value)  # Survey Number
+            StatisticSheet.write(SecondSheetRow, 3, currentSheetString)  # Current Sheet
+            StatisticSheet.write(SecondSheetRow, 4, totalMin)
+            StatisticSheet.write(SecondSheetRow, 5, totalMax)
+            StatisticSheet.write(SecondSheetRow, 6, totalAverage)
+            StatisticSheet.write(SecondSheetRow, 7, totalStdDev)
 
             SecondSheetRow += 1
 
@@ -645,3 +673,4 @@ def main(path, savePath):
             FailedSheet.write(x, 0, file)
 
     QCworkbook.close()
+    os.startfile(savePath + '\\' + 'FSS_Trending.xlsx')
