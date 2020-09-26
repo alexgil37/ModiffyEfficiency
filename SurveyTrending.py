@@ -164,10 +164,6 @@ def main(path, savePath):
 
     def find_title_data(currentSheet, titleCell):
         row = int(titleCell[0])
-        ttemp = titleCell[1]
-        ttemp = ord(titleCell[1])
-        ttemp = ord(titleCell[1]) + 1
-        ttemp = chr(ord(titleCell[1]) + 1)
         col = chr(ord(titleCell[1]) + 1)
 
         while type(currentSheet[col + str(row)]).__name__ == 'MergedCell':
@@ -313,6 +309,11 @@ def main(path, savePath):
             efficiencyRow += 8
             bkgRem = currentSheet[efficiencyCol + str(efficiencyRow)].value
 
+            # Find Correction Factor
+            efficiencyRow, efficiencyCol = check_for_BettaGamma(1)
+            efficiencyRow += 5
+            correctionFactor = currentSheet[efficiencyCol + str(efficiencyRow)].value
+
             # ***********Find Title Data**********
             titleVals = find_title_vals(currentSheet)
             print("After titlevals")
@@ -361,7 +362,7 @@ def main(path, savePath):
                         # Better security but we need to test much more
                         # bkgRem = int(sympy.sympify(bkgRem))
 
-                        netCPMRem.append(removableCounts[i] - (bkgRem / 60))
+                        netCPMRem.append((removableCounts[i] - (bkgRem / 60)) * correctionFactor)
                         netActRem.append(netCPMRem[i] / remEfficiency)
 
                     except:

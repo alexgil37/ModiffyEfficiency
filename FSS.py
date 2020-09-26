@@ -307,7 +307,7 @@ def main(path, savePath):
 
             # Find Removable Background
             efficiencyRow, efficiencyCol = check_for_BettaGamma(2)
-            efficiencyRow += 8
+            efficiencyRow += 9
             bkgRem = currentSheet[efficiencyCol + str(efficiencyRow)].value
 
             # Find Surface Efficiency
