@@ -301,7 +301,6 @@ def main(path, savePath):
             if isinstance(totalEfficiency, str):
                 totalEfficiency = eval(removePercent(totalEfficiency[1:]))
 
-
             ttemp, efficiencyCol = check_for_BettaGamma(2)
             remEfficiency = currentSheet[efficiencyCol + str(efficiencyRow)].value
 
