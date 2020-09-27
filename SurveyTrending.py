@@ -143,7 +143,10 @@ def main(path, savePath):
 
         # find type
         typeTitleCell = find_cell(currentSheet, "Survey Type")
-        typeCell = find_title_data(currentSheet, typeTitleCell)
+        if typeTitleCell[2] is None:
+            typeCell = None
+        else:
+            typeCell = find_title_data(currentSheet, typeTitleCell)
         print("Survey type")
 
         # find Level of Posting
@@ -267,6 +270,8 @@ def main(path, savePath):
                 for cell in range(n + 1, n + 21):
                     cellValue = currentSheet[countsCol + str(betaRow + cell)].value
                     backgroundValue = currentSheet[backgroundCol + str(betaRow + cell)].value
+                    if backgroundValue is None:
+                        backgroundValue = 0
                     removableValue = currentSheet[removableCountsCol + str(removableBetaRow + cell)].value
 
                     # If there is nothing in both removable and total activity
@@ -308,6 +313,8 @@ def main(path, savePath):
             efficiencyRow, efficiencyCol = check_for_BettaGamma(2)
             efficiencyRow += 8
             bkgRem = currentSheet[efficiencyCol + str(efficiencyRow)].value
+            if bkgRem is None:
+                bkgRem = 0
 
             # Find Correction Factor
             efficiencyRow, efficiencyCol = check_for_BettaGamma(1)
@@ -326,11 +333,11 @@ def main(path, savePath):
             print("After date")
 
             # Find Count Room Date Counted
-            dateTitleCell = find_date_cell(currentSheet, "Date Counted", 2)
-            if dateTitleCell[1] is None or dateTitleCell[1] == 0:
-                dateTitleCell = find_date_cell(currentSheet, "Date Counted", 1)
-            secondDateCell = find_title_data(currentSheet, dateTitleCell)
-            print("After second date")
+            # dateTitleCell = find_date_cell(currentSheet, "Date Counted", 2)
+            # if dateTitleCell[1] is None or dateTitleCell[1] == 0:
+            #     dateTitleCell = find_date_cell(currentSheet, "Date Counted", 1)
+            # secondDateCell = find_title_data(currentSheet, dateTitleCell)
+            # print("After second date")
 
             # Find the Name of the worksheet
             currentSheetString = str(currentSheet)
@@ -407,8 +414,9 @@ def main(path, savePath):
                 QCworksheet.write(QCfileRow, 2, dateCell.value, dateFormat)  # Date
                 QCworksheet.write(QCfileRow, 3, titleVals[1].value)  # Survey Tech
                 QCworksheet.write(QCfileRow, 4, titleVals[2].value)  # Count room Tech
-                QCworksheet.write(QCfileRow, 5, secondDateCell.value, dateFormat)  # Date of Count Room
-                QCworksheet.write(QCfileRow, 6, titleVals[3].value)  # Survey Type
+#                QCworksheet.write(QCfileRow, 5, secondDateCell.value, dateFormat)  # Date of Count Room
+                if titleVals[3] is not None:
+                    QCworksheet.write(QCfileRow, 6, titleVals[3].value)  # Survey Type
                 QCworksheet.write(QCfileRow, 7, titleVals[4].value)  # Level of Posting
                 QCworksheet.write(QCfileRow, 8, titleVals[5].value)  # Item Surveyed
                 QCworksheet.write(QCfileRow, 9, totalEfficiency)  # totalEfficiency
@@ -571,11 +579,11 @@ def main(path, savePath):
             print("After date")
 
             # Find Count Room Date Counted
-            dateTitleCell = find_date_cell(currentSheet, "Date Counted", 2)
-            if dateTitleCell[1] is None or dateTitleCell[1] == 0:
-                dateTitleCell = find_date_cell(currentSheet, "Date Counted", 1)
-            secondDateCell = find_title_data(currentSheet, dateTitleCell)
-            print("After second date")
+            # dateTitleCell = find_date_cell(currentSheet, "Date Counted", 2)
+            # if dateTitleCell[1] is None or dateTitleCell[1] == 0:
+            #     dateTitleCell = find_date_cell(currentSheet, "Date Counted", 1)
+            # secondDateCell = find_title_data(currentSheet, dateTitleCell)
+            # print("After second date")
 
             currentSheetString = str(currentSheet)
             currentSheetString = currentSheetString[12:]
@@ -614,7 +622,7 @@ def main(path, savePath):
                 QCworksheet.write(QCfileRow, 2, dateCell.value, dateFormat)  # Date
                 QCworksheet.write(QCfileRow, 3, titleVals[1].value)  # Survey Tech
                 QCworksheet.write(QCfileRow, 4, titleVals[2].value)  # Count room Tech
-                QCworksheet.write(QCfileRow, 5, secondDateCell.value, dateFormat)  # Date of Count Room
+                #QCworksheet.write(QCfileRow, 5, secondDateCell.value, dateFormat)  # Date of Count Room
                 QCworksheet.write(QCfileRow, 6, titleVals[3].value)  # Survey Type
                 QCworksheet.write(QCfileRow, 7, titleVals[4].value)  # Level of Posting
                 QCworksheet.write(QCfileRow, 8, titleVals[5].value)  # Item Surveyed
