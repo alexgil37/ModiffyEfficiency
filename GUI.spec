@@ -1,17 +1,12 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 block_cipher = None
-from PyInstaller.utils.hooks import collect_submodules
-
-hiddenimports_pycel = collect_submodules('pycel')
-hiddenimports_pycelLib = collect_submodules('pycel.lib')
-all_hidden_imports = hiddenimports_pycel + hiddenimports_pycelLib
 
 a = Analysis(['GUI.py'],
              pathex=['C:\\Users\\paul.jones\\Documents\\GitHub\\ModiffyEfficiency\\ModiffyEfficiency'],
              binaries=[],
              datas=[],
-             hiddenimports=all_hidden_imports,
+             hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
              excludes=[],
