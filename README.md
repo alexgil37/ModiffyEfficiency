@@ -1,8 +1,9 @@
-# Modify Efficiency
+# Data Extraction
 
-This program is to find and replace incorrect efficiencies of instruments used. 
-The values for their efficiency rating can easily be changed by modifying the values in the json file.
+This program was developed with the intention of created an automated process to allow easy data extraction when handling large file sets. This program allows control across multiple survey types: Air Samples, Surveys, and FSS Surveys. Along with extracting this data it will also generate some of the most common statistics desired. Including Min, Max, Average, and standard deviation.
 
-Use command
-```pyinstaller --onefile GUI.spec```
-This will create an exe file which can then be run.
+## Air Samples
+
+## Surveys
+
+## FSS Surveys
