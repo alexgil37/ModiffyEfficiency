@@ -24,8 +24,6 @@ def main(path, savePath):
     if not os.path.isdir(savePath):
         os.mkdir(savePath)
 
-    print(path)
-
     # create excel QC file
     QCworkbook = xlsxwriter.Workbook(savePath + '\\' + 'BetaGammaTrending.xlsx')
     QCworksheet = QCworkbook.add_worksheet()
@@ -320,6 +318,7 @@ def main(path, savePath):
             efficiencyRow, efficiencyCol = check_for_BettaGamma(1)
             efficiencyRow += 5
             correctionFactor = currentSheet[efficiencyCol + str(efficiencyRow)].value
+            correctionFactor = correctionFactor
 
             # ***********Find Title Data**********
             titleVals = find_title_vals(currentSheet)
@@ -385,7 +384,7 @@ def main(path, savePath):
 
                 elif type(bkgRem) != str:
                     netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i]))
-                    netActTotal.append(netCPMTotal[i] / totalEfficiency)
+                    netActTotal.append(netCPMTotal[i] / totalEfficiency * correctionFactor)
 
                 else:
                     try:
@@ -395,7 +394,7 @@ def main(path, savePath):
                         # Better security but we need to test much more
                         # backgroundCounts[i] = int(sympy.sympify(backgroundCounts[i]))
 
-                        netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i] / 60))
+                        netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i] / 60) * correctionFactor)
                         netActTotal.append(netCPMTotal[i] / totalEfficiency)
 
                     except:
@@ -611,8 +610,8 @@ def main(path, savePath):
                     netCPMTotal.append(None)
                     netActTotal.append(None)
                 else:
-                    netCPMTotal.append(grossTotalCounts[i] - (bkgTotal / 60))
-                    netActTotal.append(netCPMTotal[i] / totalEfficiency)
+                    netCPMTotal.append(grossTotalCounts[i] - (bkgTotal / 60) * correctionFactor)
+                    netActTotal.append(netCPMTotal[i] / totalEfficiency * correctionFactor)
 
             print("Adding data to file.")
             head, tail = os.path.split(file)
