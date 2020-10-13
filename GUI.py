@@ -6,6 +6,7 @@ from AirSampleData import main as mainAirSamples
 from SurveyTrending import main as main5
 from AlphaTrending import main as mainAlpha
 from FSS import main as mainFSS
+from dampner import main as main6
 from AirSampleCharts import main as mainAirSamplesCharts
 import os
 import tkinter as tk
@@ -84,6 +85,9 @@ def dummyFSS():
     mainFSS(path.get(), savePath.get())
     completed_popup()
 
+def dummy6():
+    main6(path.get(), savePath.get())
+    completed_popup()
 
 root = Tk()
 root.resizable(width=False, height=False)
@@ -123,8 +127,8 @@ button2.place(x=218, y=29)
 # button3.place(x=170, y=65)
 # button3 = tk.Button(root, text="Find Removable Data",  command=dummy3)
 # button3.place(x=19, y=95)
-# button3 = tk.Button(root, text="Find Total Activity",  command=dummy4)
-# button3.place(x=161, y=95)
+button3 = tk.Button(root, text="Find dampner",  command=dummy6)
+button3.place(x=170, y=95)
 airSampleButt = tk.Button(root, text="Air Samples",  command=dummyAirSamples)
 airSampleButt.place(x=35, y=65)
 button3 = tk.Button(root, text="Beta-Gamma",  command=dummy5)
