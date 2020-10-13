@@ -19,6 +19,7 @@ def main(path, savePath):
     invalidFiles = list()
     allNetAct = list()
     allRemAct = list()
+    descriptionList = list()
 
     # Create the output folder
     if not os.path.isdir(savePath):
@@ -39,13 +40,14 @@ def main(path, savePath):
     QCworksheet.write(0, 6, 'Survey Type')
     QCworksheet.write(0, 7, 'Level of Posting')
     QCworksheet.write(0, 8, 'Item Surveyed')
-    QCworksheet.write(0, 9, 'Total Activity Instrument Efficiency')
-    QCworksheet.write(0, 10, 'Gross counts of Total Activity')
-    QCworksheet.write(0, 11, 'Background counts of Total activity')
-    QCworksheet.write(0, 12, 'Net Activity of Total Activity')
-    QCworksheet.write(0, 13, 'Removable Instrument Efficiency')
-    QCworksheet.write(0, 14, 'Gross Counts of Removable')
-    QCworksheet.write(0, 15, 'Net Activity of Removable')
+    QCworksheet.write(0, 9, 'Measurement Description')
+    QCworksheet.write(0, 10, 'Total Activity Instrument Efficiency')
+    QCworksheet.write(0, 11, 'Gross counts of Total Activity')
+    QCworksheet.write(0, 12, 'Background counts of Total activity')
+    QCworksheet.write(0, 13, 'Net Activity of Total Activity')
+    QCworksheet.write(0, 14, 'Removable Instrument Efficiency')
+    QCworksheet.write(0, 15, 'Gross Counts of Removable')
+    QCworksheet.write(0, 16, 'Net Activity of Removable')
 
     # Create statistics sheet Headers
     StatisticSheet.write(0, 0, 'File Name')
@@ -104,6 +106,19 @@ def main(path, savePath):
                     return [row, column, currentSheet[cell]]
 
         return [0, 0, None]
+
+    def find_cell_with_keyword(currentSheet, keyword):
+        for row in range(5, 40):
+            for column in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":  # Here you can add or reduce the columns
+
+                cell = "{}{}".format(column, row)
+
+                if keyword in str(currentSheet[cell].value):
+
+                    return [row, column, currentSheet[cell]]
+
+        return [0, 0, None]
+
 
     # This is used when we need to find a value and the searched term occurs more than once
     def find_date_cell(currentSheet, parameterToFind, occurenceNeeded):
@@ -264,8 +279,16 @@ def main(path, savePath):
                 while currentSheet[betaCol + str(betaRow + n)].value is None:
                     n += 1
 
+                descriptionCell = find_cell_with_keyword(currentSheet, "Description")
+
+                descriptionColumn = descriptionCell[1]
+                descriptionRow = descriptionCell[0]
+                descriptionOffset = 0
+
                 # There will always be at most 20 counts per survey
                 for cell in range(n + 1, n + 21):
+                    descriptionOffset += 1
+                    descriptionValue = currentSheet(descriptionColumn + (descriptionOffset + descriptionRow))
                     cellValue = currentSheet[countsCol + str(betaRow + cell)].value
                     backgroundValue = currentSheet[backgroundCol + str(betaRow + cell)].value
                     if backgroundValue is None:
@@ -281,18 +304,22 @@ def main(path, savePath):
                         backgroundCounts.append(None)
                         grossTotalCounts.append(None)
                         removableCounts.append(removableValue)
+                        descriptionList.append(descriptionValue)
+
 
                     # If there is total activity but no removable
                     elif cellValue is not None and removableValue is None:
                         backgroundCounts.append(backgroundValue)
                         grossTotalCounts.append(cellValue)
                         removableCounts.append(None)
+                        descriptionList.append(descriptionValue)
 
                     # If there is both removable and total activity
                     else:
                         backgroundCounts.append(backgroundValue)
                         grossTotalCounts.append(cellValue)
                         removableCounts.append(removableValue)
+                        descriptionList.append(descriptionValue)
 
                     index += 1
 
@@ -523,8 +550,16 @@ def main(path, savePath):
                     print(currentSheet[betaCol + str(betaRow + n)].value)
                     n += 1
 
+                descriptionCell = find_cell_with_keyword(currentSheet, "Description")
+
+                descriptionColumn = descriptionCell[1]
+                descriptionRow = descriptionCell[0]
+                descriptionOffset = 0
+
                 # There will always be at most 20 counts per survey
                 for cell in range(n + 1, n + 21):
+                    descriptionOffset += 1
+                    descriptionValue = currentSheet(descriptionColumn + (descriptionOffset + descriptionRow))
                     cellValue = currentSheet[betaCol + str(betaRow + cell)].value
                     removableValue = currentSheet[removableBetaCol + str(removableBetaRow + cell)].value
 
@@ -536,16 +571,19 @@ def main(path, savePath):
                     elif cellValue is None and removableValue is not None:
                         grossTotalCounts.append(None)
                         removableCounts.append(removableValue)
+                        descriptionList.append(descriptionValue)
 
                     # If there is total activity but no removable
                     elif cellValue is not None and removableValue is None:
                         grossTotalCounts.append(cellValue)
                         removableCounts.append(None)
+                        descriptionList.append(descriptionValue)
 
                     # If there is both removable and total activity
                     else:
                         grossTotalCounts.append(cellValue)
                         removableCounts.append(removableValue)
+                        descriptionList.append(descriptionValue)
 
                     index += 1
 
