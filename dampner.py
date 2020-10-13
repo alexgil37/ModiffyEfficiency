@@ -35,10 +35,11 @@ def main(path, savePath):
     listOfFilesWithDampner = list()
 
     for file in files:
-
-
-        # For Openpyxl
-        theFile = openpyxl.load_workbook(file)
+        try:
+            # For Openpyxl
+            theFile = openpyxl.load_workbook(file)
+        except:
+            continue
         allSheetNames = theFile.sheetnames
         print(file)
         print("All sheet names {} ".format(theFile.sheetnames))

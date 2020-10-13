@@ -227,11 +227,11 @@ def main(path, savePath):
     dateFormat = QCworkbook.add_format({'num_format': 'mm/dd/yyyy'})
 
     for file in files:
-
-        # For Openpyxl
-        print("test")
-        theFile = openpyxl.load_workbook(file)
-        print("test done")
+        try:
+            # For Openpyxl
+            theFile = openpyxl.load_workbook(file)
+        except:
+            continue
         allSheetNames = theFile.sheetnames
         print(file)
         print("All sheet names {} ".format(theFile.sheetnames))
@@ -288,7 +288,7 @@ def main(path, savePath):
                 # There will always be at most 20 counts per survey
                 for cell in range(n + 1, n + 21):
                     descriptionOffset += 1
-                    descriptionValue = currentSheet(descriptionColumn + (descriptionOffset + descriptionRow))
+                    descriptionValue = currentSheet[descriptionColumn + str(descriptionOffset + descriptionRow)].value
                     cellValue = currentSheet[countsCol + str(betaRow + cell)].value
                     backgroundValue = currentSheet[backgroundCol + str(betaRow + cell)].value
                     if backgroundValue is None:
@@ -384,8 +384,12 @@ def main(path, savePath):
                     netActRem.append(None)
 
                 elif type(bkgRem) != str:
-                    netCPMRem.append(removableCounts[i] - (bkgRem / 60))
-                    netActRem.append(netCPMRem[i] / remEfficiency)
+                    if remEfficiency is None:
+                        netCPMRem.append(None)
+                        netActRem.append(None)
+                    else:
+                        netCPMRem.append(removableCounts[i] - (bkgRem / 60))
+                        netActRem.append(netCPMRem[i] / remEfficiency)
 
                 else:
                     try:
@@ -395,8 +399,12 @@ def main(path, savePath):
                         # Better security but we need to test much more
                         # bkgRem = int(sympy.sympify(bkgRem))
 
-                        netCPMRem.append((removableCounts[i] - (bkgRem / 60)) * correctionFactor)
-                        netActRem.append(netCPMRem[i] / remEfficiency)
+                        if correctionFactor is None:
+                            netCPMRem.append(None)
+                            netActRem.append(None)
+                        else:
+                            netCPMRem.append((removableCounts[i] - (bkgRem / 60)) * correctionFactor)
+                            netActRem.append(netCPMRem[i] / remEfficiency)
 
                     except:
                         if invalidFiles.count(file) == 0:
@@ -410,8 +418,16 @@ def main(path, savePath):
                     netActTotal.append(None)
 
                 elif type(bkgRem) != str:
-                    netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i]))
-                    netActTotal.append(netCPMTotal[i] / totalEfficiency * correctionFactor)
+                    try:
+                        netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i]))
+                        netActTotal.append(netCPMTotal[i] / totalEfficiency * correctionFactor)
+                    except:
+                        if invalidFiles.count(file) == 0:
+                            invalidFiles.append(file)
+                            badFile = True
+                        else:
+                            invalidFiles.append(file)
+                            badFile = True
 
                 else:
                     try:
@@ -560,7 +576,7 @@ def main(path, savePath):
                 # There will always be at most 20 counts per survey
                 for cell in range(n + 1, n + 21):
                     descriptionOffset += 1
-                    descriptionValue = currentSheet(descriptionColumn + (descriptionOffset + descriptionRow))
+                    descriptionValue = currentSheet[descriptionColumn + str(descriptionOffset + descriptionRow)].value
                     cellValue = currentSheet[betaCol + str(betaRow + cell)].value
                     removableValue = currentSheet[removableBetaCol + str(removableBetaRow + cell)].value
 
