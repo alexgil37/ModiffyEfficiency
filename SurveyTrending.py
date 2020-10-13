@@ -445,13 +445,14 @@ def main(path, savePath):
                     QCworksheet.write(QCfileRow, 6, titleVals[3].value)  # Survey Type
                 QCworksheet.write(QCfileRow, 7, titleVals[4].value)  # Level of Posting
                 QCworksheet.write(QCfileRow, 8, titleVals[5].value)  # Item Surveyed
-                QCworksheet.write(QCfileRow, 9, totalEfficiency)  # totalEfficiency
-                QCworksheet.write(QCfileRow, 10, grossTotalCounts[i])  # Gross Counts Total
-                QCworksheet.write(QCfileRow, 11, backgroundCounts[i])  # Background total activity
-                QCworksheet.write(QCfileRow, 12, netActTotal[i])  # DPM total activity
-                QCworksheet.write(QCfileRow, 13, remEfficiency)  # Removable instrument Efficeincy
-                QCworksheet.write(QCfileRow, 14, removableCounts[i])  # Gross removable Counts
-                QCworksheet.write(QCfileRow, 15, netActRem[i])  # Removable DPM
+                QCworksheet.write(QCfileRow, 9, descriptionList[i])  # Item Surveyed
+                QCworksheet.write(QCfileRow, 10, totalEfficiency)  # totalEfficiency
+                QCworksheet.write(QCfileRow, 11, grossTotalCounts[i])  # Gross Counts Total
+                QCworksheet.write(QCfileRow, 12, backgroundCounts[i])  # Background total activity
+                QCworksheet.write(QCfileRow, 13, netActTotal[i])  # DPM total activity
+                QCworksheet.write(QCfileRow, 14, remEfficiency)  # Removable instrument Efficeincy
+                QCworksheet.write(QCfileRow, 15, removableCounts[i])  # Gross removable Counts
+                QCworksheet.write(QCfileRow, 16, netActRem[i])  # Removable DPM
 
                 QCfileRow += 1
 
@@ -663,13 +664,14 @@ def main(path, savePath):
                 QCworksheet.write(QCfileRow, 6, titleVals[3].value)  # Survey Type
                 QCworksheet.write(QCfileRow, 7, titleVals[4].value)  # Level of Posting
                 QCworksheet.write(QCfileRow, 8, titleVals[5].value)  # Item Surveyed
-                QCworksheet.write(QCfileRow, 9, totalEfficiency)  # totalEfficiency
-                QCworksheet.write(QCfileRow, 10, grossTotalCounts[i])  # Gross Counts Total
-                QCworksheet.write(QCfileRow, 11, bkgTotal)  # Background total activity
-                QCworksheet.write(QCfileRow, 12, netActTotal[i])  # DPM total activity
-                QCworksheet.write(QCfileRow, 13, remEfficiency)  # Removable instrument Efficeincy
-                QCworksheet.write(QCfileRow, 14, removableCounts[i])  # Gross removable Counts
-                QCworksheet.write(QCfileRow, 15, netActRem[i])  # Removable DPM
+                QCworksheet.write(QCfileRow, 9, descriptionList[i])  # Item Surveyed
+                QCworksheet.write(QCfileRow, 10, totalEfficiency)  # totalEfficiency
+                QCworksheet.write(QCfileRow, 11, grossTotalCounts[i])  # Gross Counts Total
+                QCworksheet.write(QCfileRow, 12, bkgTotal)  # Background total activity
+                QCworksheet.write(QCfileRow, 13, netActTotal[i])  # DPM total activity
+                QCworksheet.write(QCfileRow, 14, remEfficiency)  # Removable instrument Efficeincy
+                QCworksheet.write(QCfileRow, 15, removableCounts[i])  # Gross removable Counts
+                QCworksheet.write(QCfileRow, 16, netActRem[i])  # Removable DPM
 
                 QCfileRow += 1
 
