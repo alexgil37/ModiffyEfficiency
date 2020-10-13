@@ -33,7 +33,7 @@ def main(path, savePath):
 
     files = getListOfFiles(path)
     listOfFilesWithDampner = list()
-    
+
     for file in files:
 
 
@@ -66,9 +66,11 @@ def main(path, savePath):
                     if "damper" in value or "dampener" in value or "dampner" in value:
                         if len(listOfFilesWithDampner) > 0:
                             if listOfFilesWithDampner.count(file) == 0:
-                                listOfFilesWithDampner.append(file)
+                                head, tail = os.path.split(file)
+                                listOfFilesWithDampner.append(tail)
                         else:
-                            listOfFilesWithDampner.append(file)
+                            head, tail = os.path.split(file)
+                            listOfFilesWithDampner.append(tail)
 
                         continue
 
