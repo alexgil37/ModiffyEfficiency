@@ -3,5 +3,7 @@
 /venv/
 /build/
 /dist/
+/Output/
+/output/
 *.xlsx
 __pycache__/SurveyTrending.cpython-38.pyc
