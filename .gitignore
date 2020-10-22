@@ -7,3 +7,4 @@
 /output/
 *.xlsx
 __pycache__/SurveyTrending.cpython-38.pyc
+*.pyc

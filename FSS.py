@@ -211,9 +211,7 @@ def main(path, savePath):
     for file in files:
 
         # For Openpyxl
-        print("test")
         theFile = openpyxl.load_workbook(file)
-        print("test done")
         allSheetNames = theFile.sheetnames
         print(file)
         print("All sheet names {} ".format(theFile.sheetnames))

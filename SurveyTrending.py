@@ -665,8 +665,8 @@ def main(path, savePath):
                     netCPMTotal.append(None)
                     netActTotal.append(None)
                 else:
-                    netCPMTotal.append(grossTotalCounts[i] - (bkgTotal / 60) * correctionFactor)
-                    netActTotal.append(netCPMTotal[i] / totalEfficiency * correctionFactor)
+                    netCPMTotal.append(grossTotalCounts[i] - (bkgTotal / 60))
+                    netActTotal.append(netCPMTotal[i] / totalEfficiency)
 
             print("Adding data to file.")
             head, tail = os.path.split(file)
