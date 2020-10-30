@@ -86,7 +86,7 @@ def main(path, savePath):
             else:
                 allFiles.append(fullPath)
 
-        print(allFiles)
+        # print(allFiles)
 
         return allFiles
 
@@ -98,11 +98,6 @@ def main(path, savePath):
                 cellValue = currentSheet[cell].value
 
                 if currentSheet[cell].value == parameterToFind:
-                    print("the row is {0} and the column {1}".format(row, column))
-
-                    print(currentSheet[cell].value)
-                    print(cell)
-
                     return [row, column, currentSheet[cell]]
 
         return [0, 0, None]
@@ -114,11 +109,9 @@ def main(path, savePath):
                 cell = "{}{}".format(column, row)
 
                 if keyword in str(currentSheet[cell].value):
-
                     return [row, column, currentSheet[cell]]
 
         return [0, 0, None]
-
 
     # This is used when we need to find a value and the searched term occurs more than once
     def find_date_cell(currentSheet, parameterToFind, occurenceNeeded):
@@ -142,17 +135,14 @@ def main(path, savePath):
         if sampleIdTitleCell[2] is None:
             sampleIdTitleCell = find_cell(currentSheet, "Survey Number")
         sampleIdCell = find_title_data(currentSheet, sampleIdTitleCell)
-        print("Survey Number")
 
         # find survey techs
         surveyTechTitleCell = find_cell(currentSheet, "Survey Tech")
         surveyTechCell = find_title_data(currentSheet, surveyTechTitleCell)
-        print("Survey tech")
 
         # find Count room tech
         countRoomTechTitleCell = find_cell(currentSheet, "Count Room Tech")
         countRoomTechCell = find_title_data(currentSheet, countRoomTechTitleCell)
-        print("Survey count tech")
 
         # find type
         typeTitleCell = find_cell(currentSheet, "Survey Type")
@@ -160,21 +150,18 @@ def main(path, savePath):
             typeCell = None
         else:
             typeCell = find_title_data(currentSheet, typeTitleCell)
-        print("Survey type")
 
         # find Level of Posting
         postTitleCell = find_cell(currentSheet, "Level Of Posting")
         if postTitleCell[2] is None:
             postTitleCell = find_cell(currentSheet, "Level of Posting")
         postingCell = find_title_data(currentSheet, postTitleCell)
-        print("Survey posting")
 
         # find Item Surveyed
         locationTitleCell = find_cell(currentSheet, "Item Surveyed")
         if locationTitleCell[2] is None:
             locationTitleCell = find_cell(currentSheet, "Survey Number")
         locationCell = find_title_data(currentSheet, locationTitleCell)
-        print("Survey Item")
 
         return [sampleIdCell, surveyTechCell, countRoomTechCell, typeCell, postingCell, locationCell]
 
@@ -237,6 +224,7 @@ def main(path, savePath):
         print("All sheet names {} ".format(theFile.sheetnames))
 
         for x in allSheetNames:
+            badFile = False
             print("Current sheet name is {}".format(x))
             currentSheet = theFile[x]
 
@@ -306,7 +294,6 @@ def main(path, savePath):
                         removableCounts.append(removableValue)
                         descriptionList.append(descriptionValue)
 
-
                     # If there is total activity but no removable
                     elif cellValue is not None and removableValue is None:
                         backgroundCounts.append(backgroundValue)
@@ -349,14 +336,12 @@ def main(path, savePath):
 
             # ***********Find Title Data**********
             titleVals = find_title_vals(currentSheet)
-            print("After titlevals")
 
             # find date
             dateTitleCell = find_cell(currentSheet, "Date")
             if dateTitleCell[2] is None or dateTitleCell[1] == 0:
                 dateTitleCell = find_cell(currentSheet, "Date Counted")
             dateCell = find_title_data(currentSheet, dateTitleCell)
-            print("After date")
 
             # Find Count Room Date Counted
             # dateTitleCell = find_date_cell(currentSheet, "Date Counted", 2)
@@ -437,7 +422,7 @@ def main(path, savePath):
                         # Better security but we need to test much more
                         # backgroundCounts[i] = int(sympy.sympify(backgroundCounts[i]))
 
-                        netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i] / 60) * correctionFactor)
+                        netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i]) * correctionFactor)
                         netActTotal.append(netCPMTotal[i] / totalEfficiency)
 
                     except:
@@ -450,13 +435,14 @@ def main(path, savePath):
             head, tail = os.path.split(file)
             if badFile is True:
                 continue
+
             for i in range(0, len(removableCounts)):
                 QCworksheet.write(QCfileRow, 0, tail)  # File Name
                 QCworksheet.write(QCfileRow, 1, titleVals[0].value)  # Survey Number
                 QCworksheet.write(QCfileRow, 2, dateCell.value, dateFormat)  # Date
                 QCworksheet.write(QCfileRow, 3, titleVals[1].value)  # Survey Tech
                 QCworksheet.write(QCfileRow, 4, titleVals[2].value)  # Count room Tech
-#                QCworksheet.write(QCfileRow, 5, secondDateCell.value, dateFormat)  # Date of Count Room
+                #               QCworksheet.write(QCfileRow, 5, secondDateCell.value, dateFormat)  # Date of Count Room
                 if titleVals[3] is not None:
                     QCworksheet.write(QCfileRow, 6, titleVals[3].value)  # Survey Type
                 QCworksheet.write(QCfileRow, 7, titleVals[4].value)  # Level of Posting
@@ -534,6 +520,7 @@ def main(path, savePath):
         for x in allSheetNames:
             print("Current sheet name is {}".format(x))
             currentSheet = theFile[x]
+            badFile = False
 
             # If it is a map sheet skip
             currentSheetString = str(currentSheet)
@@ -623,14 +610,12 @@ def main(path, savePath):
 
             # ***********Find Title Data**********
             titleVals = find_title_vals(currentSheet)
-            print("After titlevals")
 
             # find date
             dateTitleCell = find_cell(currentSheet, "Date")
             if dateTitleCell[2] is None or dateTitleCell[1] == 0:
                 dateTitleCell = find_cell(currentSheet, "Date Counted")
             dateCell = find_title_data(currentSheet, dateTitleCell)
-            print("After date")
 
             # Find Count Room Date Counted
             # dateTitleCell = find_date_cell(currentSheet, "Date Counted", 2)
@@ -650,23 +635,53 @@ def main(path, savePath):
 
             # Find DPMs
             for i in range(0, len(removableCounts)):
+                try:
+                    if removableCounts[i] is None:
+                        netCPMRem.append(None)
+                        netActRem.append(None)
+                    else:
+                        netCPMRem.append(removableCounts[i] - (bkgRem / 60))
+                        netActRem.append(netCPMRem[i] / remEfficiency)
 
-                if removableCounts[i] is None:
-                    netCPMRem.append(None)
-                    netActRem.append(None)
-                else:
-                    netCPMRem.append(removableCounts[i] - (bkgRem / 60))
-                    netActRem.append(netCPMRem[i] / remEfficiency)
+                except:
+                    try:
+                        if removableCounts[i] is None:
+                            netCPMRem.append(None)
+                            netActRem.append(None)
+                        else:
+                            netCPMRem.append(removableCounts[i])
+                            netActRem.append(netCPMRem[i] / remEfficiency)
+
+                    except:
+                        if invalidFiles.count(file) == 0:
+                            invalidFiles.append(file)
+                            badFile = True
 
             # total activity calculations
 
             for i in range(0, len(grossTotalCounts)):
-                if grossTotalCounts[i] is None:
-                    netCPMTotal.append(None)
-                    netActTotal.append(None)
-                else:
-                    netCPMTotal.append(grossTotalCounts[i] - (bkgTotal / 60))
-                    netActTotal.append(netCPMTotal[i] / totalEfficiency)
+                try:
+                    if grossTotalCounts[i] is None:
+                        netCPMTotal.append(None)
+                        netActTotal.append(None)
+                    else:
+                        netCPMTotal.append(grossTotalCounts[i] - (bkgTotal))
+                        netActTotal.append(netCPMTotal[i] / totalEfficiency)
+                except:
+                    try:
+                        if grossTotalCounts[i] is None:
+                            netCPMTotal.append(None)
+                            netActTotal.append(None)
+                        else:
+                            netCPMTotal.append(grossTotalCounts[i])
+                            netActTotal.append(netCPMTotal[i] / totalEfficiency)
+                    except:
+                        if invalidFiles.count(file) == 0:
+                            invalidFiles.append(file)
+                            badFile = True
+
+            if badFile is True:
+                continue
 
             print("Adding data to file.")
             head, tail = os.path.split(file)
@@ -676,7 +691,7 @@ def main(path, savePath):
                 QCworksheet.write(QCfileRow, 2, dateCell.value, dateFormat)  # Date
                 QCworksheet.write(QCfileRow, 3, titleVals[1].value)  # Survey Tech
                 QCworksheet.write(QCfileRow, 4, titleVals[2].value)  # Count room Tech
-                #QCworksheet.write(QCfileRow, 5, secondDateCell.value, dateFormat)  # Date of Count Room
+                # QCworksheet.write(QCfileRow, 5, secondDateCell.value, dateFormat)  # Date of Count Room
                 QCworksheet.write(QCfileRow, 6, titleVals[3].value)  # Survey Type
                 QCworksheet.write(QCfileRow, 7, titleVals[4].value)  # Level of Posting
                 QCworksheet.write(QCfileRow, 8, titleVals[5].value)  # Item Surveyed
@@ -774,5 +789,7 @@ def main(path, savePath):
         x = 1
         for file in invalidFiles:
             FailedSheet.write(x, 0, file)
+            x += 1
 
     QCworkbook.close()
+    os.startfile(savePath + '\\' + 'BetaGammaTrending.xlsx')

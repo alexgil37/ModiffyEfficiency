@@ -127,29 +127,24 @@ def main(path, savePath):
         if sampleIdTitleCell[2] is None:
             sampleIdTitleCell = find_cell(currentSheet, "Survey Number")
         sampleIdCell = find_title_data(currentSheet, sampleIdTitleCell)
-        print("Survey Number")
 
         # find survey techs
         surveyTechTitleCell = find_cell(currentSheet, "Survey Tech")
         surveyTechCell = find_title_data(currentSheet, surveyTechTitleCell)
-        print("Survey tech")
 
         # find Count room tech
         countRoomTechTitleCell = find_cell(currentSheet, "Count Room Tech")
         countRoomTechCell = find_title_data(currentSheet, countRoomTechTitleCell)
-        print("Survey count tech")
 
         # find type
         typeTitleCell = find_cell(currentSheet, "Survey Unit")
         typeCell = find_title_data(currentSheet, typeTitleCell)
-        print("Survey Unit")
 
         # find Item Surveyed
         locationTitleCell = find_cell(currentSheet, "Item Surveyed")
         if locationTitleCell[2] is None:
             locationTitleCell = find_cell(currentSheet, "Survey Number")
         locationCell = find_title_data(currentSheet, locationTitleCell)
-        print("Survey Item")
 
         return [sampleIdCell, surveyTechCell, countRoomTechCell, typeCell, locationCell]
 
@@ -319,21 +314,18 @@ def main(path, savePath):
 
             # ***********Find Title Data**********
             titleVals = find_title_vals(currentSheet)
-            print("After titlevals")
 
             # find date
             dateTitleCell = find_cell(currentSheet, "Date")
             if dateTitleCell[2] is None or dateTitleCell[1] == 0:
                 dateTitleCell = find_cell(currentSheet, "Date Counted")
             dateCell = find_title_data(currentSheet, dateTitleCell)
-            print("After date")
 
             # Find Count Room Date Counted
             dateTitleCell = find_date_cell(currentSheet, "Date Counted", 2)
             if dateTitleCell[1] is None or dateTitleCell[1] == 0:
                 dateTitleCell = find_date_cell(currentSheet, "Date Counted", 1)
             secondDateCell = find_title_data(currentSheet, dateTitleCell)
-            print("After second date")
 
             # Find the Name of the worksheet
             currentSheetString = str(currentSheet)
@@ -390,9 +382,8 @@ def main(path, savePath):
                         # Better security but we need to test much more
                         # backgroundCounts[i] = int(sympy.sympify(backgroundCounts[i]))
 
-                        netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i] / 60))
+                        netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i]))
                         netActTotal.append((netCPMTotal[i] / (totalEfficiency * surfaceEfficiency)) * correctionFactor)
-                        test20 = 20
 
                     except:
                         if invalidFiles.count(file) == 0:
