@@ -18,6 +18,7 @@ def main(path, savePath):
     invalidFiles = list()
     allNetAct = list()
     allRemAct = list()
+    MDC = list()
 
     # Create the output folder
     if not os.path.isdir(savePath):
@@ -43,10 +44,11 @@ def main(path, savePath):
     QCworksheet.write(0, 9, 'Total Activity Instrument Efficiency')
     QCworksheet.write(0, 10, 'Gross counts of Total Activity')
     QCworksheet.write(0, 11, 'Background counts of Total activity')
-    QCworksheet.write(0, 12, 'Net Activity of Total Activity')
-    QCworksheet.write(0, 13, 'Removable Instrument Efficiency')
-    QCworksheet.write(0, 14, 'Gross Counts of Removable')
-    QCworksheet.write(0, 15, 'Net Activity of Removable')
+    QCworksheet.write(0, 12, 'MDC of Total activity')
+    QCworksheet.write(0, 13, 'Net Activity of Total Activity')
+    QCworksheet.write(0, 14, 'Removable Instrument Efficiency')
+    QCworksheet.write(0, 15, 'Gross Counts of Removable')
+    QCworksheet.write(0, 16, 'Net Activity of Removable')
 
     # Create statistics sheet Headers
     StatisticSheet.write(0, 0, 'File Name')
@@ -336,6 +338,7 @@ def main(path, savePath):
             netActRem.clear()
             netActTotal.clear()
             netCPMTotal.clear()
+            MDC.clear()
 
             # Find DPMs
             badFile = False
@@ -374,6 +377,7 @@ def main(path, savePath):
                 elif type(bkgRem) != str:
                     netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i]))
                     netActTotal.append((netCPMTotal[i] / (totalEfficiency * surfaceEfficiency)) * correctionFactor)
+
                 else:
                     try:
                         backgroundCounts[i] = backgroundCounts[i][1:]
@@ -384,6 +388,7 @@ def main(path, savePath):
 
                         netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i]))
                         netActTotal.append((netCPMTotal[i] / (totalEfficiency * surfaceEfficiency)) * correctionFactor)
+                        MDC.append((((3 + 3.29 * (((backgroundCounts[i])) * 1 * (1 + (1/1))) ** 0.5)) / (totalEfficiency * surfaceEfficiency)) * 1.25)
 
                     except:
                         if invalidFiles.count(file) == 0:
@@ -408,10 +413,11 @@ def main(path, savePath):
                 QCworksheet.write(QCfileRow, 9, totalEfficiency)  # totalEfficiency
                 QCworksheet.write(QCfileRow, 10, grossTotalCounts[i])  # Gross Counts Total
                 QCworksheet.write(QCfileRow, 11, backgroundCounts[i])  # Background total activity
-                QCworksheet.write(QCfileRow, 12, netActTotal[i])  # DPM total activity
-                QCworksheet.write(QCfileRow, 13, remEfficiency)  # Removable instrument Efficeincy
-                QCworksheet.write(QCfileRow, 14, removableCounts[i])  # Gross removable Counts
-                QCworksheet.write(QCfileRow, 15, netActRem[i])  # Removable DPM
+                QCworksheet.write(QCfileRow, 12, MDC[i])  # MDC total activity
+                QCworksheet.write(QCfileRow, 13, netActTotal[i])  # DPM total activity
+                QCworksheet.write(QCfileRow, 14, remEfficiency)  # Removable instrument Efficeincy
+                QCworksheet.write(QCfileRow, 15, removableCounts[i])  # Gross removable Counts
+                QCworksheet.write(QCfileRow, 16, netActRem[i])  # Removable DPM
 
                 QCfileRow += 1
 
