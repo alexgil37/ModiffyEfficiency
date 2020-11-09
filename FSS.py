@@ -388,7 +388,7 @@ def main(path, savePath):
 
                         netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i]))
                         netActTotal.append((netCPMTotal[i] / (totalEfficiency * surfaceEfficiency)) * correctionFactor)
-                        MDC.append((((3 + 3.29 * (((backgroundCounts[i])) * 1 * (1 + (1/1))) ** 0.5)) / (totalEfficiency * surfaceEfficiency)) * 1.25)
+                        MDC.append(((3 + 3.29 * ((backgroundCounts[i]) * 1 * (1 + (1 / 1))) ** 0.5) / (totalEfficiency * surfaceEfficiency)) * 1.25)
 
                     except:
                         if invalidFiles.count(file) == 0:
