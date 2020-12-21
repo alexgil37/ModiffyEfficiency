@@ -216,7 +216,6 @@ def main(path, savePath):
         theFile = openpyxl.load_workbook(file)
         allSheetNames = theFile.sheetnames
         print(file)
-        print("All sheet names {} ".format(theFile.sheetnames))
 
         for x in allSheetNames:
             print("Current sheet name is {}".format(x))
@@ -650,6 +649,54 @@ def main(path, savePath):
         theFile.close()
         theFile.save(file)
         grossTotalCounts.clear()
+
+    # Check for NDA sheets
+    for file in files:
+
+        # For Openpyxl
+        theFile = openpyxl.load_workbook(file)
+        allSheetNames = theFile.sheetnames
+        print(file)
+
+        for x in allSheetNames:
+            print("Current sheet name is {}".format(x))
+            currentSheet = theFile[x]
+
+            # If it is a map sheet skip
+            currentSheetString = str(currentSheet)
+            currentSheetString = currentSheetString[12:]
+            checkNDAString = currentSheetString[0:3]
+
+            if checkNDAString == "NDA":
+
+                try:
+                    NDASheet = QCworkbook.add_worksheet()
+
+                    # create columns with headers
+                    NDASheet.write(0, 0, 'File Name')
+                    NDASheet.write(0, 1, 'Sheet Name')
+                    NDASheet.write(0, 2, 'Survey Number')
+                    NDASheet.write(0, 3, 'Date')
+                    NDASheet.write(0, 4, 'Survey Tech')
+                    NDASheet.write(0, 5, 'Survey Unit')
+                    NDASheet.write(0, 6, 'Item Surveyed')
+                    NDASheet.write(0, 7, 'Active area of probe')
+                    NDASheet.write(0, 8, 'Instrument Model')
+                    NDASheet.write(0, 9, 'Instrument SN')
+                    NDASheet.write(0, 10, 'Instrument Cal Due Date')
+                    NDASheet.write(0, 11, 'Count Time (min)')
+                    NDASheet.write(0, 12, 'Description/Location')
+                    NDASheet.write(0, 13, 'Duct Size')
+                    NDASheet.write(0, 14, 'Duct Length')
+                    NDASheet.write(0, 15, 'Gross Counts')
+                    NDASheet.write(0, 16, 'Background Counts')
+                    NDASheet.write(0, 17, 'Efficiency Factor')
+                    NDASheet.write(0, 18, 'Net Activity')
+
+                except:
+
+
+
 
     # Find overall stats
     allNetAct = list(filter(None, allNetAct))
