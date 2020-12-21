@@ -18,6 +18,15 @@ def main(path, savePath):
     allNetAct = list()
     allRemAct = list()
     MDC = list()
+    NDALocattion = list()
+    ductSize = list()
+    ductLength = list()
+    NDAgrossCounts = list()
+    NDAbackground = list()
+    NDAefficiencyFactor= list()
+    NDAnet = list()
+
+
 
     # Create the output folder
     if not os.path.isdir(savePath):
@@ -27,8 +36,8 @@ def main(path, savePath):
 
     # create excel QC file
     QCworkbook = xlsxwriter.Workbook(savePath + '\\' + 'FSS_Trending.xlsx')
-    QCworksheet = QCworkbook.add_worksheet()
-    StatisticSheet = QCworkbook.add_worksheet()
+    QCworksheet = QCworkbook.add_worksheet("Data")
+    StatisticSheet = QCworkbook.add_worksheet("Stats")
 
     # create columns with headers
     QCworksheet.write(0, 0, 'File Name')
@@ -181,7 +190,7 @@ def main(path, savePath):
         return [None, None]
 
     def checkForMap():
-        for row in range(1, 10):
+        for row in range(2, 11):
             for column in "ABCDEFGHIJ":
                 modelCell = "{}{}".format(column, row)
                 if currentSheet[modelCell].value is not None:
@@ -651,6 +660,7 @@ def main(path, savePath):
         grossTotalCounts.clear()
 
     # Check for NDA sheets
+    NDASheetRow = 1
     for file in files:
 
         # For Openpyxl
@@ -669,10 +679,10 @@ def main(path, savePath):
 
             if checkNDAString == "NDA":
 
+                # Start Setup
                 try:
-                    NDASheet = QCworkbook.add_worksheet()
+                    NDASheet = QCworkbook.add_worksheet("NDA")
 
-                    # create columns with headers
                     NDASheet.write(0, 0, 'File Name')
                     NDASheet.write(0, 1, 'Sheet Name')
                     NDASheet.write(0, 2, 'Survey Number')
@@ -694,23 +704,91 @@ def main(path, savePath):
                     NDASheet.write(0, 18, 'Net Activity')
 
                 except:
+                    print("NDA sheet already made")
+
+                if checkForMap():
+                    continue
+
+                surveyNumber = currentSheet["D1"].value
+                dateSurveyed = currentSheet["D2"].value
+                techs = currentSheet["D3"].value
+                surveyUnit = currentSheet["D4"].value
+                instrumentModel = currentSheet["W8"].value
+                SN = currentSheet["W9"].value
+                calDueDate = currentSheet["W10"].value
+                itemSurveyed = currentSheet["J1"].value
+
+                NDAefficiencyFactor.clear()
+                NDALocattion.clear()
+                NDAbackground.clear()
+                NDAgrossCounts.clear()
+                NDAnet.clear()
+                ductSize.clear()
+                ductLength.clear()
 
 
+                # Get Static Values
 
+                for i in range(1, 20):
+                    if currentSheet["B" + str(i + 20)].value is not None:
+                        NDALocattion.append(currentSheet["B" + str(i + 20)].value)
+                        ductSize.append(currentSheet["N" + str(i + 20)].value)
+                        ductLength.append(currentSheet["P" + str(i + 20)].value)
+                        NDAgrossCounts.append(currentSheet["R" + str(i + 20)].value)
+                        NDAbackground.append(currentSheet["T" + str(i + 20)].value)
+                        NDAefficiencyFactor.append(currentSheet["V" + str(i + 20)].value)
+
+                for i in range(0, len(NDALocattion)):
+                    NDAnet.append((NDAgrossCounts[i] - NDAbackground[i]) * NDAefficiencyFactor[i])
+
+                head, tail = os.path.split(file)
+                for i in range(0, len(NDALocattion)):
+                    NDASheet.write(NDASheetRow, 0, tail)  # File Name
+                    NDASheet.write(NDASheetRow, 1, currentSheetString)  # Sheet name
+                    NDASheet.write(NDASheetRow, 2, surveyNumber)  # Survey Number
+                    NDASheet.write(NDASheetRow, 3, dateSurveyed, dateFormat)  # Date
+                    NDASheet.write(NDASheetRow, 4, techs)  # Survey Tech
+                    NDASheet.write(NDASheetRow, 5, surveyUnit)  # Survey Unit
+                    NDASheet.write(NDASheetRow, 6, itemSurveyed)
+                    NDASheet.write(NDASheetRow, 7, 1)
+                    NDASheet.write(NDASheetRow, 8, instrumentModel)
+                    NDASheet.write(NDASheetRow, 9, SN)
+                    NDASheet.write(NDASheetRow, 10, calDueDate, dateFormat)
+                    NDASheet.write(NDASheetRow, 11, 1)
+                    NDASheet.write(NDASheetRow, 12, NDALocattion[i])
+                    NDASheet.write(NDASheetRow, 13, ductSize[i])
+                    NDASheet.write(NDASheetRow, 14, ductLength[i])
+                    NDASheet.write(NDASheetRow, 15, NDAgrossCounts[i])
+                    NDASheet.write(NDASheetRow, 16, NDAbackground[i])
+                    NDASheet.write(NDASheetRow, 17, NDAefficiencyFactor[i])
+                    NDASheet.write(NDASheetRow, 18, round(NDAnet[i]))
+
+                    NDASheetRow += 1
 
     # Find overall stats
     allNetAct = list(filter(None, allNetAct))
     allRemAct = list(filter(None, allRemAct))
+    allTotalAverage = 0
+    allTotalMax = 0
+    allTotalMin = 0
+    allTotalStdDev = 0
+    allRemovableAvg = 0
+    allRemovableMax = 0
+    allRemovableMin = 0
+    allRemovableStdDev = 0
 
-    allTotalAverage = sum(allNetAct) / len(allNetAct)
-    allTotalMax = max(allNetAct)
-    allTotalMin = min(allNetAct)
-    allTotalStdDev = statistics.pstdev(allNetAct)
 
-    allRemovableAvg = sum(allRemAct) / len(allRemAct)
-    allRemovableMax = max(allRemAct)
-    allRemovableMin = min(allRemAct)
-    allRemovableStdDev = statistics.pstdev(allRemAct)
+    if len(allNetAct) != 0:
+        allTotalAverage = sum(allNetAct) / len(allNetAct)
+        allTotalMax = max(allNetAct)
+        allTotalMin = min(allNetAct)
+        allTotalStdDev = statistics.pstdev(allNetAct)
+
+    if len(allRemAct) != 0:
+        allRemovableAvg = sum(allRemAct) / len(allRemAct)
+        allRemovableMax = max(allRemAct)
+        allRemovableMin = min(allRemAct)
+        allRemovableStdDev = statistics.pstdev(allRemAct)
 
     StatisticSheet.write(1, 13, allTotalMin)
     StatisticSheet.write(1, 14, allTotalMax)
