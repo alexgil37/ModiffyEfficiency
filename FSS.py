@@ -45,14 +45,18 @@ def main(path, savePath):
     QCworksheet.write(0, 11, 'Total Activity Surface Efficiency')
     QCworksheet.write(0, 12, 'Gross counts of Total Activity')
     QCworksheet.write(0, 13, 'Background counts of Total activity')
-    QCworksheet.write(0, 14, 'MDC of Total activity')
-    QCworksheet.write(0, 15, 'Net Activity of Total Activity')
-    QCworksheet.write(0, 16, 'Removable Instrument Efficiency')
-    QCworksheet.write(0, 17, 'Removable Instrument Surface Efficeincy')
-    QCworksheet.write(0, 18, 'Gross Counts of Removable')
-    QCworksheet.write(0, 19, 'Background Counts of Removable')
-    QCworksheet.write(0, 20, 'MDC of Removable')
-    QCworksheet.write(0, 21, 'Net Activity of Removable')
+    QCworksheet.write(0, 14, 'Total Background Count Time')
+    QCworksheet.write(0, 15, 'Total Sample Count Time')
+    QCworksheet.write(0, 16, 'MDC of Total activity')
+    QCworksheet.write(0, 17, 'Net Activity of Total Activity')
+    QCworksheet.write(0, 18, 'Removable Instrument Efficiency')
+    QCworksheet.write(0, 19, 'Removable Instrument Surface Efficiency')
+    QCworksheet.write(0, 20, 'Gross Counts of Removable')
+    QCworksheet.write(0, 21, 'Background Counts of Removable')
+    QCworksheet.write(0, 22, 'Removable Background Count Time (min')
+    QCworksheet.write(0, 23, 'Removable Sample Count Time')
+    QCworksheet.write(0, 24, 'MDC of Removable')
+    QCworksheet.write(0, 25, 'Net Activity of Removable')
 
     # Create statistics sheet Headers
     StatisticSheet.write(0, 0, 'File Name')
@@ -307,8 +311,9 @@ def main(path, savePath):
 
             # Find Removable Background
             efficiencyRow, efficiencyCol = check_for_BettaGamma(2)
-            efficiencyRow += 9
-            bkgRem = currentSheet[efficiencyCol + str(efficiencyRow)].value
+            bkgRem = currentSheet[efficiencyCol + str(efficiencyRow + 9)].value
+            remBkgCount = currentSheet[efficiencyCol + str(efficiencyRow + 7)].value
+            remSampCount = currentSheet[efficiencyCol + str(efficiencyRow + 8)].value
 
             # Find Surface Efficiency
             efficiencyRow, efficiencyCol = check_for_BettaGamma(1)
@@ -316,9 +321,10 @@ def main(path, savePath):
             surfaceEfficiency = currentSheet[efficiencyCol + str(efficiencyRow)].value
 
             # Find Correction Factor
-            efficiencyRow, efficiencyCol = check_for_BettaGamma(1)
-            efficiencyRow += 6
-            correctionFactor = currentSheet[efficiencyCol + str(efficiencyRow)].value
+            correctionFactor = currentSheet[efficiencyCol + str(efficiencyRow + 1)].value
+            totBkgCount = currentSheet[efficiencyCol + str(efficiencyRow + 2)].value
+            totSampCount = currentSheet[efficiencyCol + str(efficiencyRow + 3)].value
+
 
             # ***********Find Title Data**********
             titleVals = find_title_vals(currentSheet)
@@ -420,19 +426,23 @@ def main(path, savePath):
                 QCworksheet.write(QCfileRow, 6, secondDateCell.value, dateFormat)  # Date of Count Room
                 QCworksheet.write(QCfileRow, 7, titleVals[3].value)  # Survey Unit
                 QCworksheet.write(QCfileRow, 8, titleVals[4].value)  # Item Surveyed
-                QCworksheet.write(QCfileRow, 9, area) # Active probe area
+                QCworksheet.write(QCfileRow, 9, area)  # Active probe area
                 QCworksheet.write(QCfileRow, 10, totalEfficiency, percentFormat)  # totalEfficiency
                 QCworksheet.write(QCfileRow, 11, surfaceEfficiency, percentFormat)  # Total Activity Surface Efficiency
                 QCworksheet.write(QCfileRow, 12, grossTotalCounts[i])  # Gross Counts Total
                 QCworksheet.write(QCfileRow, 13, backgroundCounts[i])  # Background total activity
-                QCworksheet.write(QCfileRow, 14, round(MDC[i]))  # MDC total activity
-                QCworksheet.write(QCfileRow, 15, round(netActTotal[i]))  # DPM total activity
-                QCworksheet.write(QCfileRow, 16, remEfficiency, percentFormat)  # Removable Instrument Efficeincy
-                QCworksheet.write(QCfileRow, 17, remSurfaceEfficiency, percentFormat)  # Removable Surface Efficeincy
-                QCworksheet.write(QCfileRow, 18, removableCounts[i])  # Gross removable Counts
-                QCworksheet.write(QCfileRow, 19, round(bkgRem))  # Removable activity background
-                QCworksheet.write(QCfileRow, 20, round(bkgMDC))  # Removable MDC
-                QCworksheet.write(QCfileRow, 21, netActRem[i])  # Removable DPM
+                QCworksheet.write(QCfileRow, 14, totBkgCount)  # Total background count time
+                QCworksheet.write(QCfileRow, 15, totSampCount)  # Total sample count time
+                QCworksheet.write(QCfileRow, 16, round(MDC[i]))  # MDC total activity
+                QCworksheet.write(QCfileRow, 17, round(netActTotal[i]))  # DPM total activity
+                QCworksheet.write(QCfileRow, 18, remEfficiency, percentFormat)  # Removable Instrument Efficiency
+                QCworksheet.write(QCfileRow, 19, remSurfaceEfficiency, percentFormat)  # Removable Surface Efficiency
+                QCworksheet.write(QCfileRow, 20, removableCounts[i])  # Gross removable Counts
+                QCworksheet.write(QCfileRow, 21, round(bkgRem))  # Removable activity background
+                QCworksheet.write(QCfileRow, 22, remBkgCount)  # Removable background count time
+                QCworksheet.write(QCfileRow, 23, remSampCount)  # Removable sample count time
+                QCworksheet.write(QCfileRow, 24, round(bkgMDC))  # Removable MDC
+                QCworksheet.write(QCfileRow, 25, round(netActRem[i]))  # Removable DPM
 
                 QCfileRow += 1
 
