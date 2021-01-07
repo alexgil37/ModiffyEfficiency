@@ -685,6 +685,7 @@ def main(path, savePath):
             # If it is a map sheet skip
             currentSheetString = str(currentSheet)
             currentSheetString = currentSheetString[12:]
+            currentSheetName = currentSheetString[:-2]
             checkNDAString = currentSheetString[0:3]
 
             if checkNDAString == "NDA":
@@ -739,7 +740,7 @@ def main(path, savePath):
 
                 # Get Static Values
 
-                for i in range(1, 20):
+                for i in range(1, 21):
                     if currentSheet["B" + str(i + 20)].value is not None:
                         NDALocattion.append(currentSheet["B" + str(i + 20)].value)
                         ductSize.append(currentSheet["N" + str(i + 20)].value)
@@ -754,7 +755,7 @@ def main(path, savePath):
                 head, tail = os.path.split(file)
                 for i in range(0, len(NDALocattion)):
                     NDASheet.write(NDASheetRow, 0, tail)  # File Name
-                    NDASheet.write(NDASheetRow, 1, currentSheetString)  # Sheet name
+                    NDASheet.write(NDASheetRow, 1, currentSheetName)  # Sheet name
                     NDASheet.write(NDASheetRow, 2, surveyNumber)  # Survey Number
                     NDASheet.write(NDASheetRow, 3, dateSurveyed, dateFormat)  # Date
                     NDASheet.write(NDASheetRow, 4, techs)  # Survey Tech
