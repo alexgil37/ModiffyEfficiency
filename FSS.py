@@ -311,8 +311,10 @@ def main(path, savePath):
             efficiencyRow += 4
             totalEfficiency = currentSheet[efficiencyCol + str(efficiencyRow)].value
             if isinstance(totalEfficiency, str):
-                totalEfficiency = eval(removePercent(totalEfficiency[1:]))
-
+                try:
+                    totalEfficiency = eval(removePercent(totalEfficiency[1:]))
+                except:
+                    continue
             ttemp, efficiencyCol = check_for_BettaGamma(2)
             remEfficiency = currentSheet[efficiencyCol + str(efficiencyRow)].value
             remSurfaceEfficiency = currentSheet[efficiencyCol + str(efficiencyRow + 1)].value
@@ -420,7 +422,11 @@ def main(path, savePath):
             # Write the results to the QC file
             # Write the current Worksheet
             area = re.sub('\^2', '²', "100 cm^2")
-            bkgMDC = (3 + 3.29 * (((bkgRem / 60) * 1 * (1 + (1 / 60))) ** 0.5)) / (remEfficiency)
+            try:
+                bkgMDC = (3 + 3.29 * (((bkgRem / 60) * 1 * (1 + (1 / 60))) ** 0.5)) / (remEfficiency)
+            except:
+                print("No removable efficiency")
+
             head, tail = os.path.split(file)
             if badFile is True:
                 continue
