@@ -135,7 +135,10 @@ def main(path, savePath):
 
 
     dataFileWB = getFile(path)
-    dataFileWS = dataFileWB["Sheet1"]
+    allSheetNames = dataFileWB.sheetnames
+    print(dataFileWB)
+    print("All sheet names {} ".format(dataFileWB.sheetnames))
+    dataFileWS = dataFileWB.active
 
     file = shutil.copy("Air Sample Results Trending Template.xlsx", savePath + "\\" + "AirSamplesCharts.xlsx")
     wb = openpyxl.load_workbook(file)

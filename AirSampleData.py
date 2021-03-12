@@ -123,10 +123,19 @@ def main(path, savePath):
 
     # eliminate negative values
     def eliminate_negative(cell):
-        if (excel.evaluate(cell) < 0):
+        # test = "E36".value
+        # if (excel.evaluate(cell) < 0):
+        #     return 0
+        # else:
+        #     return excel.evaluate(cell)
+
+        try:
+            if (excel.evaluate(cell) < 0):
+                return 0
+            else:
+                return excel.evaluate(cell)
+        except:
             return 0
-        else:
-            return excel.evaluate(cell)
 
     files = getListOfFiles(path)
 
@@ -177,6 +186,7 @@ def main(path, savePath):
             currentSheetString = str(currentSheet)
             currentSheetString = currentSheetString[12:]
             currentSheetString = currentSheetString[:-2]
+            print(file)
 
             # Find the values of alpha and beta activity
             alphaCell = currentSheetString + "!" + str(activityCell[0])
