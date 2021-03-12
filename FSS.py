@@ -293,18 +293,24 @@ def main(path, savePath):
 
                     # If there is removable but no total activity
                     elif cellValue is None and removableValue is not None:
+                        locationNumbers.append(locationNumber)
+                        locations.append(location)
                         backgroundCounts.append(None)
                         grossTotalCounts.append(None)
                         removableCounts.append(removableValue)
 
                     # If there is total activity but no removable
                     elif cellValue is not None and removableValue is None:
+                        locationNumbers.append(locationNumber)
+                        locations.append(location)
                         backgroundCounts.append(backgroundValue)
                         grossTotalCounts.append(cellValue)
                         removableCounts.append(None)
 
                     # If there is both removable and total activity
                     else:
+                        locationNumbers.append(locationNumber)
+                        locations.append(location)
                         backgroundCounts.append(backgroundValue)
                         grossTotalCounts.append(cellValue)
                         removableCounts.append(removableValue)
@@ -448,8 +454,8 @@ def main(path, savePath):
                 QCworksheet.write(QCfileRow, 6, secondDateCell.value, dateFormat)  # Date of Count Room
                 QCworksheet.write(QCfileRow, 7, titleVals[3].value)  # Survey Unit
                 QCworksheet.write(QCfileRow, 8, titleVals[4].value)  # Item Surveyed
-                QCworksheet.write(QCfileRow, 9, "No.")
-                QCworksheet.write(QCfileRow, 10, "Description/Location")
+                QCworksheet.write(QCfileRow, 9, locationNumbers[i])
+                QCworksheet.write(QCfileRow, 10, locations[i])
                 QCworksheet.write(QCfileRow, 11, area)  # Active probe area
                 QCworksheet.write(QCfileRow, 12, totalEfficiency, percentFormat)  # totalEfficiency
                 QCworksheet.write(QCfileRow, 13, surfaceEfficiency, percentFormat)  # Total Activity Surface Efficiency
@@ -684,6 +690,8 @@ def main(path, savePath):
 
             grossTotalCounts.clear()
             removableCounts.clear()
+            locationNumbers.clear()
+            locations.clear()
 
         theFile.close()
         theFile.save(file)
