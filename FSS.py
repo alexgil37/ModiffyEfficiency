@@ -426,7 +426,6 @@ def main(path, savePath):
                         netCPMTotal.append(grossTotalCounts[i] - (backgroundCounts[i]))
                         netActTotal.append((netCPMTotal[i] / (totalEfficiency * surfaceEfficiency)) * correctionFactor)
                         MDC.append(((3 + 3.29 * ((backgroundCounts[i]) * 1 * (1 + (1 / 1))) ** 0.5) / (totalEfficiency * surfaceEfficiency)) * 1.25)
-                        test = test
 
                     except:
                         if invalidFiles.count(file) == 0:
@@ -577,6 +576,8 @@ def main(path, savePath):
                 # There will always be at most 20 counts per survey
                 for cell in range(n + 1, n + 21):
                     cellValue = currentSheet[betaCol + str(betaRow + cell)].value
+                    locationNumber = currentSheet["A" + str(betaRow + cell)].value
+                    location = currentSheet["B" + str(betaRow + cell)].value
 
                     # If there is nothing in total activity
                     if cellValue is None:
@@ -585,6 +586,8 @@ def main(path, savePath):
                     # If there is total activity
                     else:
                         grossTotalCounts.append(cellValue)
+                        locationNumbers.append(locationNumber)
+                        locations.append(location)
 
                     index += 1
 
@@ -654,9 +657,15 @@ def main(path, savePath):
                 QCworksheet.write(QCfileRow, 6, secondDateCell.value, dateFormat)  # Date of Count Room
                 QCworksheet.write(QCfileRow, 7, titleVals[3].value)  # Survey Unit
                 QCworksheet.write(QCfileRow, 8, titleVals[4].value)  # Item Surveyed
-                QCworksheet.write(QCfileRow, 9, totalEfficiency, percentFormat)  # totalEfficiency
-                QCworksheet.write(QCfileRow, 10, grossTotalCounts[i])  # Gross Counts Total
-                QCworksheet.write(QCfileRow, 12, netActTotal[i])  # DPM total activity
+                QCworksheet.write(QCfileRow, 9, locationNumbers[i])
+                QCworksheet.write(QCfileRow, 10, locations[i])
+                QCworksheet.write(QCfileRow, 11, area)
+                QCworksheet.write(QCfileRow, 12, totalEfficiency, percentFormat)  # totalEfficiency
+                QCworksheet.write(QCfileRow, 13, surfaceEfficiency, percentFormat)
+                QCworksheet.write(QCfileRow, 14, grossTotalCounts[i])  # Gross Counts Total
+                QCworksheet.write(QCfileRow, 15, netActTotal[i])  # DPM total activity
+                QCworksheet.write(QCfileRow, 16, totBkgCount)  # Total background count time
+                QCworksheet.write(QCfileRow, 17, totSampCount)  # Total sample count time
 
                 QCfileRow += 1
 
@@ -767,9 +776,10 @@ def main(path, savePath):
 
 
                 # Get Static Values
-
+                locationNumbers.clear()
                 for i in range(1, 21):
                     if currentSheet["B" + str(i + 20)].value is not None:
+                        locationNumbers.append(currentSheet["A" + str(i + 20)].value)
                         NDALocattion.append(currentSheet["B" + str(i + 20)].value)
                         ductSize.append(currentSheet["N" + str(i + 20)].value)
                         ductLength.append(currentSheet["P" + str(i + 20)].value)
@@ -794,13 +804,14 @@ def main(path, savePath):
                     NDASheet.write(NDASheetRow, 9, SN)
                     NDASheet.write(NDASheetRow, 10, calDueDate, dateFormat)
                     NDASheet.write(NDASheetRow, 11, 1)
-                    NDASheet.write(NDASheetRow, 12, NDALocattion[i])
-                    NDASheet.write(NDASheetRow, 13, ductSize[i])
-                    NDASheet.write(NDASheetRow, 14, ductLength[i])
-                    NDASheet.write(NDASheetRow, 15, NDAgrossCounts[i])
-                    NDASheet.write(NDASheetRow, 16, NDAbackground[i])
-                    NDASheet.write(NDASheetRow, 17, NDAefficiencyFactor[i])
-                    NDASheet.write(NDASheetRow, 18, round(NDAnet[i]))
+                    NDASheet.write(NDASheetRow, 12, locationNumbers)
+                    NDASheet.write(NDASheetRow, 13, NDALocattion[i])
+                    NDASheet.write(NDASheetRow, 14, ductSize[i])
+                    NDASheet.write(NDASheetRow, 15, ductLength[i])
+                    NDASheet.write(NDASheetRow, 16, NDAgrossCounts[i])
+                    NDASheet.write(NDASheetRow, 17, NDAbackground[i])
+                    NDASheet.write(NDASheetRow, 18, NDAefficiencyFactor[i])
+                    NDASheet.write(NDASheetRow, 19, round(NDAnet[i]))
 
                     NDASheetRow += 1
 
