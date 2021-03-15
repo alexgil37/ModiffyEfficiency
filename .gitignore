@@ -1,3 +1,6 @@
+!.gitignore
+!Air Sample Results Trending Template.xlsx
+
 /.idea/
 /_pycache_/
 /venv/
