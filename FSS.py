@@ -804,7 +804,7 @@ def main(path, savePath):
                     NDASheet.write(NDASheetRow, 9, SN)
                     NDASheet.write(NDASheetRow, 10, calDueDate, dateFormat)
                     NDASheet.write(NDASheetRow, 11, 1)
-                    NDASheet.write(NDASheetRow, 12, locationNumbers)
+                    NDASheet.write(NDASheetRow, 12, locationNumbers[i])
                     NDASheet.write(NDASheetRow, 13, NDALocattion[i])
                     NDASheet.write(NDASheetRow, 14, ductSize[i])
                     NDASheet.write(NDASheetRow, 15, ductLength[i])
