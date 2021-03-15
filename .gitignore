@@ -1,5 +1,4 @@
 !.gitignore
-!Air Sample Results Trending Template.xlsx
 
 /.idea/
 /_pycache_/
@@ -9,5 +8,6 @@
 /Output/
 /output/
 *.xlsx
+!Air Sample Results Trending Template.xlsx
 __pycache__/SurveyTrending.cpython-38.pyc
 *.pyc
